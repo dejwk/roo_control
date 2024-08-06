@@ -17,7 +17,7 @@
         "type": "git",
         "url": "https://github.com/dejwk/roo_control"
     },
-    "version": "1.0.0",
+    "version": "1.0.1",
     "homepage": "https://github.com/dejwk/roo_control",
     "frameworks": [
         "Arduino"
@@ -33,6 +33,6 @@
         "Wire": ">0",
         "dejwk/roo_logging": ">=1.0.4",
         "dejwk/roo_time": ">0",
-        "dejwk/scheduler": ">=1.2.0"
+        "dejwk/roo_scheduler": ">=1.2.0"
     }
 }
