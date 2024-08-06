@@ -1,0 +1,37 @@
+{
+    "name": "roo_control",
+    "description": "Arduino relays, port extenders, debouncing, retries: common abstractions and implementations.",
+    "keywords": [
+        "relay",
+        "PCF8574",
+        "switch",
+    ],
+    "authors": [
+        {
+            "name": "Dejwk",
+            "email": "dejwk.oss@gmail.com",
+            "maintainer": true
+        }
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/dejwk/roo_control"
+    },
+    "version": "1.0.0",
+    "homepage": "https://github.com/dejwk/roo_control",
+    "frameworks": [
+        "Arduino"
+    ],
+    "build": {
+        "srcDir": "src",
+        "srcFilter": "+<*> -<examples> -<benchmarks> -<doc> -<test>"
+    },
+    "examples": [
+        "examples/**/*.ino"
+    ],
+    "dependencies": {
+        "dejwk/roo_logging": ">=1.0.4",
+        "dejwk/roo_time": ">0",
+        "dejwk/scheduler": ">=1.2.0"
+    }
+}
