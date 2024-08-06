@@ -4,7 +4,7 @@
     "keywords": [
         "relay",
         "PCF8574",
-        "switch",
+        "switch"
     ],
     "authors": [
         {
@@ -30,6 +30,7 @@
         "examples/**/*.ino"
     ],
     "dependencies": {
+        "Wire": ">0",
         "dejwk/roo_logging": ">=1.0.4",
         "dejwk/roo_time": ">0",
         "dejwk/scheduler": ">=1.2.0"
