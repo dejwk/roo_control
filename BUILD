@@ -3,9 +3,7 @@ cc_library(
     srcs = glob(
         [
             "src/**/*.cpp",
-            "src/**/*.c",
             "src/**/*.h",
-            "src/**/*.inl",
         ],
         exclude = ["test/**"],
     ),
@@ -16,6 +14,8 @@ cc_library(
     deps = [
         "//lib/roo_logging",
         "//lib/roo_scheduler",
+        "//lib/roo_collections",
+        "//lib/roo_onewire",
         "//roo_testing:arduino",
         "//roo_testing/frameworks/arduino-esp32-2.0.4/libraries/Wire",
     ],
