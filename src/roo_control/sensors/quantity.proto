@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package roo_control;
+
+enum Quantity {
+  kUnspecified = 0;
+
+  // Fundamental.
+  kElapsedTime = 1; // [seconds].
+  kMass = 2;        // [kilograms].
+  kTemperature = 3; // [deg C].
+  kFrequency = 4;   // [Hz].
+  kLength = 5;      // [m].
+  kAngle = 6;       // [rad].
+
+  // Displacement.
+  kDistance = 10;     // [m].
+  kVelocity = 11;     // [m/s].
+  kAcceleration = 12; // [m/s^2].
+  kJerk = 13;         // [m/s^3].
+
+  // Force and energy.
+  kForce = 20;    // [N].
+  kPressure = 21; // [Pa].
+  kEnergy = 22;   // [J].
+  kPower = 23;    // [W].
+
+  // Spatial.
+  kArea = 30;   // [m^2].
+  kVolume = 31; // [m^3].
+
+  // Liquids.
+  kLiquidVolume = 40; // [liter].
+  kLiquidFlow = 41;   // [liter/min].
+
+  // Thermodynamics.
+  kHeat = 50; // [J].
+
+  // Magnetism.
+  kMagneticFlux = 60; // [We].
+
+  // Electricity.
+  kElectricCharge = 70;  // [C].
+  kElectricCurrent = 71; // [A].
+  kVoltage = 72;         // [V].
+  kResistance = 73;      // [Ohm].
+  kImpedance = 74;       // [Ohm].
+  kCapacitance = 75;     // [F].
+  kInductance = 76;      // [T].
+
+  // Light.
+  kLuminousIntensity = 90; // [lumen].
+
+  kColorHue = 95;  // [0-360).
+  kColorSaturation = 96; // [0-1].
+  kColorBrightness = 97; // [0-1].
+
+  // Geolocation.
+  kLatitude = 110; // [-90-90] (North is positive).
+  kLongitude = 111; // [-180-180] (East is positive).
+  kAltitude = 112; // [m].
+
+  // Environmental.
+  kAirHumidity = 130; // [%].
+}

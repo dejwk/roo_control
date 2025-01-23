@@ -30,25 +30,15 @@ class OneWireFamily : public SensorFamily {
     return std::string("1-Wire:") + code;
   }
 
-  roo_temperature::Thermometer::Reading readTemperature(
-      SensorDeviceId id) const override {
+  Measurement read(SensorDeviceId id) const override {
     const roo_onewire::Thermometer* t =
         onewire_.thermometers().thermometerByRomCode(roo_onewire::RomCode(id));
-    if (t == nullptr) {
-      return roo_temperature::Thermometer::Reading{
-          .value = roo_temperature::Temperature(),
-          .time = roo_time::Uptime::Now(),
-      };
-    }
-    return roo_temperature::Thermometer::Reading{
-        .value = t->temperature(),
-        .time = roo_time::Uptime::Now(),
-    };
+    return Measurement(roo_control_Quantity_kTemperature,
+                       roo_time::Uptime::Now(),
+                       t == nullptr ? nanf("") : t->temperature().degCelcius());
   }
 
-  void requestUpdate() override {
-    onewire_.update();
-  }
+  void requestUpdate() override { onewire_.update(); }
 
   void addEventListener(SensorEventListener* listener) override {
     auto result = event_listeners_.insert(listener);

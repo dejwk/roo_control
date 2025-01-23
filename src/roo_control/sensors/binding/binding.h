@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "roo_control/sensors/binding/hal/store.h"
+#include "roo_control/sensors/measurement.h"
 #include "roo_control/sensors/universe.h"
 
 namespace roo_control {
@@ -34,7 +35,6 @@ class SensorBinding {
   }
 
   void unbind() {
-    if (id_ == UniversalDeviceId()) return;
     id_ = UniversalDeviceId();
     store_.clearBinding(key_);
     synced_ = true;
@@ -57,16 +57,23 @@ class SensorBinding {
 
 class BoundThermometer : public roo_temperature::Thermometer {
  public:
-  BoundThermometer(SensorUniverse& universe, SensorBinding& binding)
-      : universe_(universe), binding_(binding) {}
+  BoundThermometer(SensorUniverse& universe, const SensorBinding& binding)
+      : universe_(universe), binding_(&binding) {}
 
   Reading readTemperature() const override {
-    return universe_.readTemperature(binding_.get());
+    Measurement m = universe_.read(binding_->get());
+    if (!m.isDefined()) {
+      return Reading{.value = roo_temperature::Unknown(),
+                     .time = roo_time::Uptime::Start()};
+    }
+    CHECK_EQ(roo_control_Quantity_kTemperature, m.quantity());
+    return Reading{.value = roo_temperature::DegCelcius(m.value()),
+                   .time = m.time()};
   }
 
  private:
   SensorUniverse& universe_;
-  SensorBinding& binding_;
+  const SensorBinding* binding_;
 };
 
 }  // namespace roo_control

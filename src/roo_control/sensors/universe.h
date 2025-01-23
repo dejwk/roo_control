@@ -46,17 +46,13 @@ class SensorUniverse {
   // Returns the i-th family ID.
   SensorFamilyId family_id(size_t idx) const { return families_[idx].id; }
 
-  roo_temperature::Thermometer::Reading readTemperature(
-      UniversalDeviceId id) const {
+  Measurement read(UniversalDeviceId id) const {
     auto it = family_index_.find(id.family());
     if (it == family_index_.end()) {
-      return roo_temperature::Thermometer::Reading{
-          .value = roo_temperature::Temperature(),
-          .time = roo_time::Uptime::Now(),
-      };
+      return Measurement();
     }
     int pos = it->second;
-    return families_[it->second].family->readTemperature(id.uid());
+    return families_[it->second].family->read(id.uid());
   }
 
   // Requests sensor families that are able to do so, to update their state

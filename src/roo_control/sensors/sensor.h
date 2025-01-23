@@ -2,6 +2,7 @@
 
 #include "roo_control/sensors/device_id.h"
 #include "roo_temperature.h"
+#include "roo_control/sensors/measurement.h"
 
 namespace roo_control {
 
@@ -13,7 +14,9 @@ class SensorEventListener {
   virtual void newReadingsAvailable() {}
 };
 
-class Sensor : public roo_temperature::Thermometer {
+class Sensor {
+ public:
+  virtual Measurement read() = 0;
 //  public:
 //   virtual SensorDeviceId id() const = 0;
 };
