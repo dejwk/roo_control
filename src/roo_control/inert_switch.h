@@ -146,6 +146,6 @@ class InertSwitch : public Switch<StateT> {
   int failure_count_;
 };
 
-using InertBinarySwitch = InertSwitch<BinarySwitchState>;
+using InertBinarySwitch = InertSwitch<BinaryLogicalState>;
 
 }  // namespace roo_control

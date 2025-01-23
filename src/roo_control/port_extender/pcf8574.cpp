@@ -6,24 +6,24 @@ using roo_time::Interval;
 using roo_time::Millis;
 using roo_time::Uptime;
 
-bool Pcf8574::Port::setState(BinarySwitchState state) {
+bool Pcf8574::Port::setState(BinaryLogicalState state) {
   return extender_.writePort(port_, state);
 }
 
-BinarySwitchState Pcf8574::Port::getState() const {
+BinaryLogicalState Pcf8574::Port::getState() const {
   return extender_.readPort(port_);
 }
 
 Pcf8574::Port::Port(Pcf8574& extender, uint8_t port)
     : extender_(extender), port_(port) {}
 
-bool Pcf8574::OutputPort::setState(BinarySwitchState state) {
+bool Pcf8574::OutputPort::setState(BinaryLogicalState state) {
   return extender_.writePort(port_, state);
 }
 
-BinarySwitchState Pcf8574::OutputPort::getState() const {
-  return ((extender_.last_written_ & (1 << port_)) != 0) ? SWITCH_HIGH
-                                                         : SWITCH_LOW;
+BinaryLogicalState Pcf8574::OutputPort::getState() const {
+  return ((extender_.last_written_ & (1 << port_)) != 0) ? BINARY_STATE_HIGH
+                                                         : BINARY_STATE_LOW;
 }
 
 Pcf8574::OutputPort::OutputPort(Pcf8574& extender, uint8_t port)
@@ -41,26 +41,26 @@ Pcf8574::Pcf8574(TwoWire& wire, uint8_t addr)
   // // Reads the level of the specified port. For ports used as output, the value
   // // will reflect what was last written.
   // // On a communication failure, returns the last known state.
-  // BinarySwitchState readPort(uint8_t port);
+  // BinaryLogicalState readPort(uint8_t port);
 
   // // Writes the level of the specified output port. Returns false on a
   // // communication failure. For input ports, it is OK to write HIGH - that will
   // // allow the slave to continue driving the level actaully seen by readPort.
   // // Writing LOW will force the LOW state.
-  // bool writePort(uint8_t port, BinarySwitchState state);
+  // bool writePort(uint8_t port, BinaryLogicalState state);
 
 
-BinarySwitchState Pcf8574::readPort(uint8_t port) {
+BinaryLogicalState Pcf8574::readPort(uint8_t port) {
   uint8_t data;
   if (!read(data)) {
     data = last_read();
   }
   uint8_t mask = (1 << port);
-  return ((data & mask) != 0) ? SWITCH_HIGH : SWITCH_LOW;
+  return ((data & mask) != 0) ? BINARY_STATE_HIGH : BINARY_STATE_LOW;
 }
 
-bool Pcf8574::writePort(uint8_t port, BinarySwitchState state) {
-  if (state == SWITCH_HIGH) {
+bool Pcf8574::writePort(uint8_t port, BinaryLogicalState state) {
+  if (state == BINARY_STATE_HIGH) {
     uint8_t mask = (1 << port);
     if ((last_written_ & mask) != 0) {
       // No change since last write.

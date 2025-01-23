@@ -1,15 +1,15 @@
-#include "roo_control/switch.h"
+#include "roo_control/binary_logical_state.h"
 
 namespace roo_control {
 
 roo_logging::Stream& operator<<(roo_logging::Stream& out,
-                                BinarySwitchState state) {
+                                BinaryLogicalState state) {
   switch (state) {
-    case SWITCH_LOW: {
+    case BINARY_STATE_LOW: {
       out << "LOW";
       break;
     }
-    case SWITCH_HIGH: {
+    case BINARY_STATE_HIGH: {
       out << "HIGH";
       break;
     }

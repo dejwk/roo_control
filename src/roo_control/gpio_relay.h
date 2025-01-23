@@ -9,13 +9,13 @@ class GpioRelay : public BinarySwitch {
  public:
   GpioRelay(uint8_t pin) : pin_(pin) { pinMode(pin_, OUTPUT); }
 
-  bool setState(BinarySwitchState state) override {
+  bool setState(BinaryLogicalState state) override {
     digitalWrite(pin_, state);
     return digitalRead(pin_) == state;
   }
 
-  BinarySwitchState getState() const override {
-    return (BinarySwitchState)digitalRead(pin_);
+  BinaryLogicalState getState() const override {
+    return (BinaryLogicalState)digitalRead(pin_);
   }
 
  private:

@@ -24,8 +24,8 @@ class Pcf8574 {
    public:
     Port(Pcf8574& extender, uint8_t port);
 
-    bool setState(BinarySwitchState state) override;
-    BinarySwitchState getState() const override;
+    bool setState(BinaryLogicalState state) override;
+    BinaryLogicalState getState() const override;
 
    private:
     Pcf8574& extender_;
@@ -41,8 +41,8 @@ class Pcf8574 {
    public:
     OutputPort(Pcf8574& extender, uint8_t port);
 
-    bool setState(BinarySwitchState state) override;
-    BinarySwitchState getState() const override;
+    bool setState(BinaryLogicalState state) override;
+    BinaryLogicalState getState() const override;
 
    private:
     Pcf8574& extender_;
@@ -87,13 +87,13 @@ class Pcf8574 {
   // will generally reflect what was last written, but the value is always actually read
   // from the extender. On a communication failure, returns the last known
   // state.
-  BinarySwitchState readPort(uint8_t port);
+  BinaryLogicalState readPort(uint8_t port);
 
   // Writes the level of the specified output port. Returns false on a
   // communication failure. For input ports, it is OK to write HIGH - that will
   // allow the slave to continue driving the level actaully seen by readPort.
   // Writing LOW will force the LOW state.
-  bool writePort(uint8_t port, BinarySwitchState state);
+  bool writePort(uint8_t port, BinaryLogicalState state);
 
  private:
   // The I2C interface.
