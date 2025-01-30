@@ -27,6 +27,9 @@ class TransceiverFamily {
   virtual size_t getSensorCount(TransceiverDeviceId device_id,
                                 SensorId sensor_id) const = 0;
 
+  virtual roo_control_Quantity getSensorQuantity(TransceiverDeviceId device_id,
+                                                 SensorId sensor_id) const = 0;
+
   virtual Measurement read(TransceiverDeviceId device_id,
                            SensorId sensor_id) const = 0;
 
