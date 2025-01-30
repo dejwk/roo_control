@@ -19,7 +19,7 @@ class OneWireFamily : public TransceiverFamily {
 
   int deviceCount() const override { return onewire_.thermometers().count(); }
 
-  TransceiverDeviceId deviceId(int idx) const override {
+  TransceiverDeviceId deviceId(size_t idx) const override {
     return (TransceiverDeviceId)onewire_.thermometers().rom_code(idx).raw();
   }
 

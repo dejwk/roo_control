@@ -16,7 +16,7 @@ class TransceiverFamily {
 
   virtual int deviceCount() const = 0;
 
-  virtual TransceiverDeviceId deviceId(int idx) const = 0;
+  virtual TransceiverDeviceId deviceId(size_t device_idx) const = 0;
 
   virtual std::string deviceUserFriendlyName(TransceiverDeviceId id) const = 0;
 
