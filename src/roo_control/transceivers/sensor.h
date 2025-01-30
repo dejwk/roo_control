@@ -1,16 +1,16 @@
 #pragma once
 
-#include "roo_control/sensors/device_id.h"
+#include "roo_control/transceivers/id.h"
 #include "roo_temperature.h"
-#include "roo_control/sensors/measurement.h"
+#include "roo_control/transceivers/measurement.h"
 
 namespace roo_control {
 
-class SensorEventListener {
+class TransceiverEventListener {
  public:
-  virtual ~SensorEventListener() = default;
+  virtual ~TransceiverEventListener() = default;
 
-  virtual void sensorsChanged() {}
+  virtual void devicesChanged() {}
   virtual void newReadingsAvailable() {}
 };
 

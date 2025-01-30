@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "roo_collections/flat_small_hash_map.h"
-#include "roo_control/sensors/device_id.h"
-#include "roo_control/sensors/family.h"
+#include "roo_control/transceivers/id.h"
+#include "roo_control/transceivers/family.h"
 #include "roo_logging.h"
 
 namespace roo_control {
@@ -16,8 +16,8 @@ namespace roo_control {
 class SensorUniverse {
  public:
   struct FamilySpec {
-    SensorFamilyId id;
-    SensorFamily& family;
+    TransceiverFamilyId id;
+    TransceiverFamily& family;
   };
 
   SensorUniverse() {}
@@ -28,7 +28,7 @@ class SensorUniverse {
     }
   }
 
-  void addFamily(SensorFamilyId id, SensorFamily& family) {
+  void addFamily(TransceiverFamilyId id, TransceiverFamily& family) {
     CHECK(!family_index_.contains(id))
         << "Family " << id << " already registered.";
     family_index_[id] = families_.size();
@@ -39,14 +39,14 @@ class SensorUniverse {
   size_t familyCount() const { return families_.size(); }
 
   // Returns the i-th family.
-  const SensorFamily& family(size_t idx) const {
+  const TransceiverFamily& family(size_t idx) const {
     return *families_[idx].family;
   }
 
   // Returns the i-th family ID.
-  SensorFamilyId family_id(size_t idx) const { return families_[idx].id; }
+  TransceiverFamilyId family_id(size_t idx) const { return families_[idx].id; }
 
-  Measurement read(UniversalDeviceId id) const {
+  Measurement read(UniversalTransceiverDeviceId id) const {
     auto it = family_index_.find(id.family());
     if (it == family_index_.end()) {
       return Measurement();
@@ -65,14 +65,14 @@ class SensorUniverse {
 
   // Registers a listener to be notified when sensors changed or new readings
   // are available.
-  void addEventListener(SensorEventListener* listener) {
+  void addEventListener(TransceiverEventListener* listener) {
     for (auto& family : families_) {
       family.family->addEventListener(listener);
     }
   }
 
   // Removes a previously registered listener.
-  void removeEventListener(SensorEventListener* listener) {
+  void removeEventListener(TransceiverEventListener* listener) {
     for (auto& family : families_) {
       family.family->removeEventListener(listener);
     }
@@ -80,26 +80,26 @@ class SensorUniverse {
 
   // Generates a human-friendly, GUI-suitable name corresponding to the
   // specified device ID.
-  std::string sensorUserFriendlyName(UniversalDeviceId id) const {
+  std::string sensorUserFriendlyName(UniversalTransceiverDeviceId id) const {
     auto it = family_index_.find(id.family());
     if (it == family_index_.end()) {
       return "<invalid>";
     }
     int pos = it->second;
-    return families_[it->second].family->sensorUserFriendlyName(id.uid());
+    return families_[it->second].family->deviceUserFriendlyName(id.uid());
   }
 
  private:
   struct FamilyInfo {
-    FamilyInfo(SensorFamilyId id, SensorFamily* family)
+    FamilyInfo(TransceiverFamilyId id, TransceiverFamily* family)
         : id(id), family(family) {}
 
-    SensorFamilyId id;
-    SensorFamily* family;
+    TransceiverFamilyId id;
+    TransceiverFamily* family;
   };
 
   std::vector<FamilyInfo> families_;
-  roo_collections::FlatSmallHashMap<SensorFamilyId, int> family_index_;
+  roo_collections::FlatSmallHashMap<TransceiverFamilyId, int> family_index_;
 };
 
 }  // namespace roo_control

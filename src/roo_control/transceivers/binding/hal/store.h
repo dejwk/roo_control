@@ -1,6 +1,6 @@
 #pragma once
 
-#include "roo_control/sensors/device_id.h"
+#include "roo_control/transceivers/id.h"
 
 namespace roo_control {
 
@@ -9,8 +9,8 @@ class SensorBindingStore {
  public:
   using Key = uint32_t;
 
-  virtual UniversalDeviceId getBinding(Key key) = 0;
-  virtual void setBinding(Key key, UniversalDeviceId id) = 0;
+  virtual UniversalTransceiverDeviceId getBinding(Key key) = 0;
+  virtual void setBinding(Key key, UniversalTransceiverDeviceId id) = 0;
   virtual void clearBinding(Key key) = 0;
 };
 

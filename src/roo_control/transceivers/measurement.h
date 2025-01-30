@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "roo_control/sensors/quantity.pb.h"
+#include "roo_control/transceivers/quantity.pb.h"
 #include "roo_time.h"
 
 namespace roo_control {

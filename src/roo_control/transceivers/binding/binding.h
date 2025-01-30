@@ -2,9 +2,9 @@
 
 #include <cstdint>
 
-#include "roo_control/sensors/binding/hal/store.h"
-#include "roo_control/sensors/measurement.h"
-#include "roo_control/sensors/universe.h"
+#include "roo_control/transceivers/binding/hal/store.h"
+#include "roo_control/transceivers/measurement.h"
+#include "roo_control/transceivers/universe.h"
 
 namespace roo_control {
 
@@ -13,7 +13,7 @@ class SensorBinding {
   SensorBinding(SensorBindingStore& store, SensorBindingStore::Key key)
       : id_(), store_(store), key_(key), synced_(false) {}
 
-  UniversalDeviceId get() const {
+  UniversalTransceiverDeviceId get() const {
     sync();
     return id_;
   }
@@ -23,10 +23,10 @@ class SensorBinding {
     return id_.isDefined();
   }
 
-  void bind(UniversalDeviceId id) {
+  void bind(UniversalTransceiverDeviceId id) {
     if (id_ == id) return;
     id_ = id;
-    if (id_ == UniversalDeviceId()) {
+    if (id_ == UniversalTransceiverDeviceId()) {
       store_.clearBinding(key_);
     } else {
       store_.setBinding(key_, id_);
@@ -35,7 +35,7 @@ class SensorBinding {
   }
 
   void unbind() {
-    id_ = UniversalDeviceId();
+    id_ = UniversalTransceiverDeviceId();
     store_.clearBinding(key_);
     synced_ = true;
   }
@@ -47,7 +47,7 @@ class SensorBinding {
       synced_ = true;
     }
   }
-  mutable UniversalDeviceId id_;
+  mutable UniversalTransceiverDeviceId id_;
 
   SensorBindingStore& store_;
   SensorBindingStore::Key key_;

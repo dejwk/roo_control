@@ -1,14 +1,14 @@
 #pragma once
 
-#include "roo_control/sensors/device_id.h"
-#include "roo_control/sensors/family.h"
+#include "roo_control/transceivers/id.h"
+#include "roo_control/transceivers/family.h"
 #include "roo_io/text/string_printf.h"
 #include "roo_onewire.h"
 #include "roo_temperature.h"
 
 namespace roo_control {
 
-class OneWireFamily : public SensorFamily {
+class OneWireFamily : public TransceiverFamily {
  public:
   OneWireFamily(roo_onewire::OneWire& onewire)
       : onewire_(onewire), listener_(*this) {
@@ -17,20 +17,20 @@ class OneWireFamily : public SensorFamily {
 
   ~OneWireFamily() { onewire_.thermometers().removeEventListener(&listener_); }
 
-  int sensorCount() const override { return onewire_.thermometers().count(); }
+  int deviceCount() const override { return onewire_.thermometers().count(); }
 
-  SensorDeviceId sensorId(int idx) const override {
-    return (SensorDeviceId)onewire_.thermometers().rom_code(idx).raw();
+  TransceiverDeviceId deviceId(int idx) const override {
+    return (TransceiverDeviceId)onewire_.thermometers().rom_code(idx).raw();
   }
 
-  std::string sensorUserFriendlyName(SensorDeviceId id) const override {
+  std::string deviceUserFriendlyName(TransceiverDeviceId id) const override {
     char code[17];
     roo_onewire::RomCode(id).toCharArray(code);
     code[16] = 0;
     return std::string("1-Wire:") + code;
   }
 
-  Measurement read(SensorDeviceId id) const override {
+  Measurement read(TransceiverDeviceId id) const override {
     const roo_onewire::Thermometer* t =
         onewire_.thermometers().thermometerByRomCode(roo_onewire::RomCode(id));
     return Measurement(roo_control_Quantity_kTemperature,
@@ -40,20 +40,20 @@ class OneWireFamily : public SensorFamily {
 
   void requestUpdate() override { onewire_.update(); }
 
-  void addEventListener(SensorEventListener* listener) override {
+  void addEventListener(TransceiverEventListener* listener) override {
     auto result = event_listeners_.insert(listener);
     CHECK(result.second) << "Event listener " << listener
                          << " was registered already.";
   }
 
-  void removeEventListener(SensorEventListener* listener) override {
+  void removeEventListener(TransceiverEventListener* listener) override {
     event_listeners_.erase(listener);
   }
 
  private:
   void notifySensorsChanged() const {
     for (auto& listener : event_listeners_) {
-      listener->sensorsChanged();
+      listener->devicesChanged();
     }
   }
 
@@ -79,7 +79,7 @@ class OneWireFamily : public SensorFamily {
     OneWireFamily& onewire_;
   };
 
-  roo_collections::FlatSmallHashSet<SensorEventListener*> event_listeners_;
+  roo_collections::FlatSmallHashSet<TransceiverEventListener*> event_listeners_;
   roo_onewire::OneWire& onewire_;
   Listener listener_;
 };
