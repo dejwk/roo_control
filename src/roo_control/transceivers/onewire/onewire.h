@@ -31,15 +31,14 @@ class OneWireFamily : public TransceiverFamily {
     return std::string("1-Wire:") + code;
   }
 
+  size_t getSensorCount(TransceiverDeviceId device_id) const override {
+    return 1;
+  }
+
   std::string sensorUserFriendlyName(TransceiverDeviceId device_id,
                                      SensorId sensor_id) const override {
     CHECK_EQ(0, sensor_id);
     return deviceUserFriendlyName(device_id);
-  }
-
-  size_t getSensorCount(TransceiverDeviceId device_id,
-                        SensorId sensor_id) const override {
-    return 1;
   }
 
   roo_control_Quantity getSensorQuantity(TransceiverDeviceId device_id,
