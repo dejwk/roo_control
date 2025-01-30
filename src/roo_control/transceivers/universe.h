@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "roo_collections/flat_small_hash_map.h"
-#include "roo_control/transceivers/id.h"
 #include "roo_control/transceivers/family.h"
+#include "roo_control/transceivers/id.h"
 #include "roo_logging.h"
 
 namespace roo_control {
@@ -52,7 +52,7 @@ class SensorUniverse {
       return Measurement();
     }
     int pos = it->second;
-    return families_[it->second].family->read(id.family(), id.sensor());
+    return families_[it->second].family->read(id.device(), id.sensor());
   }
 
   // Requests sensor families that are able to do so, to update their state
@@ -86,7 +86,8 @@ class SensorUniverse {
       return "<invalid>";
     }
     int pos = it->second;
-    return families_[it->second].family->deviceUserFriendlyName(id.family());
+    return families_[it->second].family->sensorUserFriendlyName(id.device(),
+                                                                id.sensor());
   }
 
  private:
