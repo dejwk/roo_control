@@ -12,63 +12,65 @@ enum PredefinedTransceiverFamily {
 
 using TransceiverFamilyId = uint32_t;
 using TransceiverDeviceId = uint64_t;
-using SensorId = uint32_t;
-using ActuatorId = uint32_t;
+using SensorIdx = uint32_t;
+using ActuatorIdx = uint32_t;
 
 class UniversalTransceiverDeviceId {
  public:
-  UniversalTransceiverDeviceId() : family_(0), uid_(0) {}
+  UniversalTransceiverDeviceId() : family_id_(0), device_id_(0) {}
 
-  bool isDefined() const { return family_ != kNoDevice; }
+  bool isDefined() const { return family_id_ != kNoDevice; }
 
-  UniversalTransceiverDeviceId(uint32_t family, uint64_t uid)
-      : family_(family), uid_(uid) {}
+  UniversalTransceiverDeviceId(uint32_t family_id, uint64_t device_id)
+      : family_id_(family_id), device_id_(device_id) {}
 
-  TransceiverFamilyId family() const { return family_; }
-  TransceiverDeviceId uid() const { return uid_; }
+  TransceiverFamilyId family_id() const { return family_id_; }
+  TransceiverDeviceId device_id() const { return device_id_; }
 
  private:
-  TransceiverFamilyId family_;
-  TransceiverDeviceId uid_;
+  TransceiverFamilyId family_id_;
+  TransceiverDeviceId device_id_;
 };
 
 inline bool operator==(const UniversalTransceiverDeviceId& a,
                        const UniversalTransceiverDeviceId& b) {
-  return a.family() == b.family() && a.uid() == b.uid();
+  return a.family_id() == b.family_id() && a.device_id() == b.device_id();
 }
 
 struct UniversalTransceiverDeviceIdHashFn {
   uint32_t operator()(const UniversalTransceiverDeviceId& val) const {
-    return ((val.uid() >> 32) * 5 + val.uid() * 11 + val.family() * 17);
+    return ((val.device_id() >> 32) * 5 + val.device_id() * 11 +
+            val.family_id() * 17);
   }
 };
 
 class UniversalSensorId {
  public:
-  UniversalSensorId() : device_id_(), sensor_id_(0) {}
+  UniversalSensorId() : device_id_(), sensor_idx_(0) {}
 
   bool isDefined() const { return device_id_.isDefined(); }
 
-  UniversalSensorId(uint32_t family, uint64_t uid, uint32_t sensor_id)
-      : device_id_(family, uid), sensor_id_(sensor_id) {}
+  UniversalSensorId(uint32_t family_id, uint64_t device_id, uint32_t sensor_id)
+      : device_id_(family_id, device_id), sensor_idx_(sensor_id) {}
 
-  TransceiverFamilyId family() const { return device_id_.family(); }
-  TransceiverDeviceId device() const { return device_id_.uid(); }
-  SensorId sensor() const { return sensor_id_; }
+  TransceiverFamilyId family_id() const { return device_id_.family_id(); }
+  TransceiverDeviceId device_id() const { return device_id_.device_id(); }
+  SensorIdx sensor_idx() const { return sensor_idx_; }
 
  private:
   UniversalTransceiverDeviceId device_id_;
-  SensorId sensor_id_;
+  SensorIdx sensor_idx_;
 };
 
 inline bool operator==(const UniversalSensorId& a, const UniversalSensorId& b) {
-  return a.family() == b.family() && a.device() == b.device() &&
-         a.sensor() == b.sensor();
+  return a.family_id() == b.family_id() && a.device_id() == b.device_id() &&
+         a.sensor_idx() == b.sensor_idx();
 }
 
 struct UniversalSensorHashFn {
   uint32_t operator()(const UniversalSensorId& val) const {
-    return (val.sensor() * 5 + val.device() * 61 + val.family() * 131);
+    return (val.sensor_idx() * 5 + val.device_id() * 61 +
+            val.family_id() * 131);
   }
 };
 
@@ -79,7 +81,8 @@ template <>
 struct hash<roo_control::UniversalTransceiverDeviceId> {
   size_t operator()(
       const roo_control::UniversalTransceiverDeviceId& val) const {
-    return ((val.uid() >> 32) * 5 + val.uid() * 11 + val.family() * 17);
+    return ((val.device_id() >> 32) * 5 + val.device_id() * 11 +
+            val.family_id() * 17);
   }
 };
 

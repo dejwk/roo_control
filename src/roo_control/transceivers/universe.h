@@ -47,12 +47,12 @@ class SensorUniverse {
   TransceiverFamilyId family_id(size_t idx) const { return families_[idx].id; }
 
   Measurement read(UniversalSensorId id) const {
-    auto it = family_index_.find(id.family());
+    auto it = family_index_.find(id.family_id());
     if (it == family_index_.end()) {
       return Measurement();
     }
     int pos = it->second;
-    return families_[it->second].family->read(id.device(), id.sensor());
+    return families_[it->second].family->read(id.device_id(), id.sensor_idx());
   }
 
   // Requests sensor families that are able to do so, to update their state
@@ -81,13 +81,13 @@ class SensorUniverse {
   // Generates a human-friendly, GUI-suitable name corresponding to the
   // specified device ID.
   std::string sensorUserFriendlyName(UniversalSensorId id) const {
-    auto it = family_index_.find(id.family());
+    auto it = family_index_.find(id.family_id());
     if (it == family_index_.end()) {
       return "<invalid>";
     }
     int pos = it->second;
-    return families_[it->second].family->sensorUserFriendlyName(id.device(),
-                                                                id.sensor());
+    return families_[it->second].family->sensorUserFriendlyName(
+        id.device_id(), id.sensor_idx());
   }
 
  private:

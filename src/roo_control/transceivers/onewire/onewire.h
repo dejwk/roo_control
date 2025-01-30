@@ -36,18 +36,18 @@ class OneWireFamily : public TransceiverFamily {
   }
 
   std::string sensorUserFriendlyName(TransceiverDeviceId device_id,
-                                     SensorId sensor_id) const override {
+                                     SensorIdx sensor_id) const override {
     CHECK_EQ(0, sensor_id);
     return deviceUserFriendlyName(device_id);
   }
 
   roo_control_Quantity getSensorQuantity(TransceiverDeviceId device_id,
-                                         SensorId sensor_id) const override {
+                                         SensorIdx sensor_id) const override {
     return roo_control_Quantity_kTemperature;
   }
 
   Measurement read(TransceiverDeviceId device_id,
-                   SensorId sensor_id) const override {
+                   SensorIdx sensor_id) const override {
     CHECK_EQ(0, sensor_id);
     const roo_onewire::Thermometer* t =
         onewire_.thermometers().thermometerByRomCode(
