@@ -18,7 +18,14 @@ class TransceiverFamily {
 
   virtual TransceiverDeviceId deviceId(size_t device_idx) const = 0;
 
-  virtual std::string deviceUserFriendlyName(TransceiverDeviceId id) const = 0;
+  virtual std::string deviceUserFriendlyName(
+      TransceiverDeviceId device_id) const = 0;
+
+  virtual std::string sensorUserFriendlyName(TransceiverDeviceId device_id,
+                                             SensorId sensor_id) const = 0;
+
+  virtual size_t getSensorCount(TransceiverDeviceId device_id,
+                                SensorId sensor_id) const = 0;
 
   virtual Measurement read(TransceiverDeviceId id) const = 0;
 

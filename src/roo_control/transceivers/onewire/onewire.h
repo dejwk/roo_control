@@ -1,7 +1,7 @@
 #pragma once
 
-#include "roo_control/transceivers/id.h"
 #include "roo_control/transceivers/family.h"
+#include "roo_control/transceivers/id.h"
 #include "roo_io/text/string_printf.h"
 #include "roo_onewire.h"
 #include "roo_temperature.h"
@@ -23,11 +23,23 @@ class OneWireFamily : public TransceiverFamily {
     return (TransceiverDeviceId)onewire_.thermometers().rom_code(idx).raw();
   }
 
-  std::string deviceUserFriendlyName(TransceiverDeviceId id) const override {
+  std::string deviceUserFriendlyName(
+      TransceiverDeviceId device_id) const override {
     char code[17];
-    roo_onewire::RomCode(id).toCharArray(code);
+    roo_onewire::RomCode(device_id).toCharArray(code);
     code[16] = 0;
     return std::string("1-Wire:") + code;
+  }
+
+  std::string sensorUserFriendlyName(TransceiverDeviceId device_id,
+                                     SensorId sensor_id) const override {
+    CHECK_EQ(0, sensor_id);
+    return deviceUserFriendlyName(device_id);
+  }
+
+  size_t getSensorCount(TransceiverDeviceId device_id,
+                        SensorId sensor_id) const override {
+    return 1;
   }
 
   Measurement read(TransceiverDeviceId id) const override {
