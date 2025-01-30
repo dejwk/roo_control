@@ -21,4 +21,9 @@ class Sensor {
 //   virtual SensorDeviceId id() const = 0;
 };
 
+class Actuator {
+ public:
+  virtual void write(float val) = 0;
+};
+
 }  // namespace roo_control
