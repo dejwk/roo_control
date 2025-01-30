@@ -52,7 +52,7 @@ class SensorUniverse {
       return Measurement();
     }
     int pos = it->second;
-    return families_[it->second].family->read(id.family());
+    return families_[it->second].family->read(id.family(), id.sensor());
   }
 
   // Requests sensor families that are able to do so, to update their state

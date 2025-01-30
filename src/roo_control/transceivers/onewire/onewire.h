@@ -42,9 +42,11 @@ class OneWireFamily : public TransceiverFamily {
     return 1;
   }
 
-  Measurement read(TransceiverDeviceId id) const override {
+  Measurement read(TransceiverDeviceId device_id,
+                   SensorId sensor_id) const override {
+    CHECK_EQ(0, sensor_id);
     const roo_onewire::Thermometer* t =
-        onewire_.thermometers().thermometerByRomCode(roo_onewire::RomCode(id));
+        onewire_.thermometers().thermometerByRomCode(roo_onewire::RomCode(device_id));
     return Measurement(roo_control_Quantity_kTemperature,
                        roo_time::Uptime::Now(),
                        t == nullptr ? nanf("") : t->temperature().degCelcius());
