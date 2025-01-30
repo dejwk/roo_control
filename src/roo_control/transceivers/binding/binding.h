@@ -13,7 +13,7 @@ class SensorBinding {
   SensorBinding(SensorBindingStore& store, SensorBindingStore::Key key)
       : id_(), store_(store), key_(key), synced_(false) {}
 
-  UniversalTransceiverDeviceId get() const {
+  UniversalSensorId get() const {
     sync();
     return id_;
   }
@@ -23,10 +23,10 @@ class SensorBinding {
     return id_.isDefined();
   }
 
-  void bind(UniversalTransceiverDeviceId id) {
+  void bind(UniversalSensorId id) {
     if (id_ == id) return;
     id_ = id;
-    if (id_ == UniversalTransceiverDeviceId()) {
+    if (!id_.isDefined()) {
       store_.clearBinding(key_);
     } else {
       store_.setBinding(key_, id_);
@@ -35,7 +35,7 @@ class SensorBinding {
   }
 
   void unbind() {
-    id_ = UniversalTransceiverDeviceId();
+    id_ = UniversalSensorId();
     store_.clearBinding(key_);
     synced_ = true;
   }
@@ -47,7 +47,7 @@ class SensorBinding {
       synced_ = true;
     }
   }
-  mutable UniversalTransceiverDeviceId id_;
+  mutable UniversalSensorId id_;
 
   SensorBindingStore& store_;
   SensorBindingStore::Key key_;

@@ -9,8 +9,8 @@ class ArduinoPreferencesSensorBindingStore : public SensorBindingStore {
  public:
   ArduinoPreferencesSensorBindingStore() : collection_("roo/1w/bindings") {}
 
-  UniversalTransceiverDeviceId getBinding(Key key) override;
-  void setBinding(Key key, UniversalTransceiverDeviceId id) override;
+  UniversalSensorId getBinding(Key key) override;
+  void setBinding(Key key, UniversalSensorId id) override;
   void clearBinding(Key key) override;
 
  private:

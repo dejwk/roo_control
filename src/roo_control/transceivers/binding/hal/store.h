@@ -9,8 +9,8 @@ class SensorBindingStore {
  public:
   using Key = uint32_t;
 
-  virtual UniversalTransceiverDeviceId getBinding(Key key) = 0;
-  virtual void setBinding(Key key, UniversalTransceiverDeviceId id) = 0;
+  virtual UniversalSensorId getBinding(Key key) = 0;
+  virtual void setBinding(Key key, UniversalSensorId id) = 0;
   virtual void clearBinding(Key key) = 0;
 };
 

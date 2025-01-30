@@ -10,22 +10,22 @@ void id2key(int id, char* key) { sprintf(key, "r_%d", id); }
 
 }  // namespace
 
-UniversalTransceiverDeviceId ArduinoPreferencesSensorBindingStore::getBinding(Key key) {
+UniversalSensorId ArduinoPreferencesSensorBindingStore::getBinding(Key key) {
   roo_prefs::Transaction t(collection_, true);
   char skey[16];
   id2key(key, skey);
-  UniversalTransceiverDeviceId id;
+  UniversalSensorId id;
   roo_prefs::ReadResult result =
-      roo_prefs::StoreRead<UniversalTransceiverDeviceId>(t.store(), skey, id);
-  return (result == roo_prefs::READ_OK ? id : UniversalTransceiverDeviceId());
+      roo_prefs::StoreRead<UniversalSensorId>(t.store(), skey, id);
+  return (result == roo_prefs::READ_OK ? id : UniversalSensorId());
 }
 
 void ArduinoPreferencesSensorBindingStore::setBinding(Key key,
-                                                      UniversalTransceiverDeviceId id) {
+                                                      UniversalSensorId id) {
   roo_prefs::Transaction t(collection_);
   char skey[16];
   id2key(key, skey);
-  roo_prefs::StoreWrite<UniversalTransceiverDeviceId>(t.store(), skey, id);
+  roo_prefs::StoreWrite<UniversalSensorId>(t.store(), skey, id);
 }
 
 void ArduinoPreferencesSensorBindingStore::clearBinding(Key key) {
