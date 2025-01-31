@@ -24,13 +24,24 @@ class TransceiverFamily {
   virtual size_t getSensorCount(TransceiverDeviceId device_id) const = 0;
 
   virtual std::string sensorUserFriendlyName(TransceiverDeviceId device_id,
-                                             SensorIdx sensor_id) const = 0;
+                                             SensorIdx sensor_idx) const = 0;
 
-  virtual roo_control_Quantity getSensorQuantity(TransceiverDeviceId device_id,
-                                                 SensorIdx sensor_id) const = 0;
+  virtual roo_control_Quantity getSensorQuantity(
+      TransceiverDeviceId device_id, SensorIdx sensor_idx) const = 0;
 
   virtual Measurement read(TransceiverDeviceId device_id,
-                           SensorIdx sensor_id) const = 0;
+                           SensorIdx sensor_idx) const = 0;
+
+  virtual size_t getActuatorCount(TransceiverDeviceId device_id) const = 0;
+
+  virtual std::string actuatorUserFriendlyName(
+      TransceiverDeviceId device_id, ActuatorIdx actuator_idx) const = 0;
+
+  virtual roo_control_Quantity getActuatorQuantity(
+      TransceiverDeviceId device_id, ActuatorIdx actuator_idx) const = 0;
+
+  virtual void write(TransceiverDeviceId device_id, ActuatorIdx actuator_idx,
+                     float value) const = 0;
 
   virtual void requestUpdate() = 0;
 
@@ -40,6 +51,59 @@ class TransceiverFamily {
 
  protected:
   TransceiverFamily() = default;
+};
+
+// For devices that have a single sensor (and no actuators).
+class SimpleSensorFamily : public TransceiverFamily {
+ public:
+  size_t getSensorCount(TransceiverDeviceId device_id) const override {
+    return 1;
+  }
+
+  std::string sensorUserFriendlyName(TransceiverDeviceId device_id,
+                                     SensorIdx sensor_idx) const override {
+    CHECK_EQ(0, sensor_idx);
+    return deviceUserFriendlyName(device_id);
+  }
+
+  roo_control_Quantity getSensorQuantity(TransceiverDeviceId device_id,
+                                         SensorIdx sensor_idx) const override {
+    CHECK_EQ(0, sensor_idx);
+    return getSensorQuantity(device_id);
+  }
+
+  Measurement read(TransceiverDeviceId device_id,
+                   SensorIdx sensor_idx) const override {
+    CHECK_EQ(0, sensor_idx);
+    return readSensor(device_id);
+  }
+
+  size_t getActuatorCount(TransceiverDeviceId device_id) const override {
+    return 0;
+  }
+
+  std::string actuatorUserFriendlyName(
+      TransceiverDeviceId device_id, ActuatorIdx actuator_idx) const override {
+    LOG(FATAL) << "This device has no actuators.";
+    return "";
+  }
+
+  roo_control_Quantity getActuatorQuantity(
+      TransceiverDeviceId device_id, ActuatorIdx actuator_idx) const override {
+    LOG(FATAL) << "This device has no actuators.";
+    return roo_control_Quantity_kUnspecified;
+  }
+
+  void write(TransceiverDeviceId device_id, ActuatorIdx actuator_idx,
+             float value) const override {
+    LOG(FATAL) << "This device has no actuators.";
+  }
+
+ protected:
+  virtual Measurement readSensor(TransceiverDeviceId device_id) const = 0;
+
+  virtual roo_control_Quantity getSensorQuantity(
+      TransceiverDeviceId device_id) const = 0;
 };
 
 }  // namespace roo_control

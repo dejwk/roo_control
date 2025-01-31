@@ -8,7 +8,7 @@
 
 namespace roo_control {
 
-class OneWireFamily : public TransceiverFamily {
+class OneWireFamily : public SimpleSensorFamily {
  public:
   OneWireFamily(roo_onewire::OneWire& onewire)
       : onewire_(onewire), listener_(*this) {
@@ -31,24 +31,12 @@ class OneWireFamily : public TransceiverFamily {
     return std::string("1-Wire:") + code;
   }
 
-  size_t getSensorCount(TransceiverDeviceId device_id) const override {
-    return 1;
-  }
-
-  std::string sensorUserFriendlyName(TransceiverDeviceId device_id,
-                                     SensorIdx sensor_id) const override {
-    CHECK_EQ(0, sensor_id);
-    return deviceUserFriendlyName(device_id);
-  }
-
-  roo_control_Quantity getSensorQuantity(TransceiverDeviceId device_id,
-                                         SensorIdx sensor_id) const override {
+  roo_control_Quantity getSensorQuantity(
+      TransceiverDeviceId device_id) const override {
     return roo_control_Quantity_kTemperature;
   }
 
-  Measurement read(TransceiverDeviceId device_id,
-                   SensorIdx sensor_id) const override {
-    CHECK_EQ(0, sensor_id);
+  Measurement readSensor(TransceiverDeviceId device_id) const override {
     const roo_onewire::Thermometer* t =
         onewire_.thermometers().thermometerByRomCode(
             roo_onewire::RomCode(device_id));
