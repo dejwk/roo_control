@@ -10,7 +10,8 @@ namespace roo_control {
 
 class SensorBinding {
  public:
-  SensorBinding(SensorBindingStore& store, SensorBindingStore::Key key)
+  SensorBinding(TransceiverBindingStore& store,
+                TransceiverBindingStore::SensorKey key)
       : id_(), store_(store), key_(key), synced_(false) {}
 
   UniversalSensorId get() const {
@@ -27,30 +28,30 @@ class SensorBinding {
     if (id_ == id) return;
     id_ = id;
     if (!id_.isDefined()) {
-      store_.clearBinding(key_);
+      store_.clearSensorBinding(key_);
     } else {
-      store_.setBinding(key_, id_);
+      store_.setSensorBinding(key_, id_);
     }
     synced_ = true;
   }
 
   void unbind() {
     id_ = UniversalSensorId();
-    store_.clearBinding(key_);
+    store_.clearSensorBinding(key_);
     synced_ = true;
   }
 
  private:
   void sync() const {
     if (!synced_) {
-      id_ = store_.getBinding(key_);
+      id_ = store_.getSensorBinding(key_);
       synced_ = true;
     }
   }
   mutable UniversalSensorId id_;
 
-  SensorBindingStore& store_;
-  SensorBindingStore::Key key_;
+  TransceiverBindingStore& store_;
+  TransceiverBindingStore::SensorKey key_;
 
   mutable bool synced_;
 };

@@ -5,13 +5,15 @@
 
 namespace roo_control {
 
-class ArduinoPreferencesSensorBindingStore : public SensorBindingStore {
+class ArduinoPreferencesTransceiverBindingStore
+    : public TransceiverBindingStore {
  public:
-  ArduinoPreferencesSensorBindingStore() : collection_("roo/1w/bindings") {}
+  ArduinoPreferencesTransceiverBindingStore()
+      : collection_("roo/1w/bindings") {}
 
-  UniversalSensorId getBinding(Key key) override;
-  void setBinding(Key key, UniversalSensorId id) override;
-  void clearBinding(Key key) override;
+  UniversalSensorId getSensorBinding(SensorKey key) override;
+  void setSensorBinding(SensorKey key, UniversalSensorId id) override;
+  void clearSensorBinding(SensorKey key) override;
 
  private:
   roo_prefs::Collection collection_;

@@ -2,8 +2,8 @@
 
 namespace roo_control {
 
-SensorBindingStore& DefaultSensorBindingStore() {
-  static ArduinoPreferencesSensorBindingStore store;
+TransceiverBindingStore& DefaultTransceiverBindingStore() {
+  static ArduinoPreferencesTransceiverBindingStore store;
   return store;
 }
 

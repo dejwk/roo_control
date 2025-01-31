@@ -4,6 +4,6 @@
 
 namespace roo_control {
 
-SensorBindingStore& DefaultSensorBindingStore();
+TransceiverBindingStore& DefaultTransceiverBindingStore();
 
 }  // namespace roo_control
