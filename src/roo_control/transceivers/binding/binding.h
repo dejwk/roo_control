@@ -5,6 +5,7 @@
 #include "roo_control/transceivers/binding/hal/store.h"
 #include "roo_control/transceivers/measurement.h"
 #include "roo_control/transceivers/universe.h"
+#include "roo_temperature.h"
 
 namespace roo_control {
 
@@ -12,31 +13,31 @@ class SensorBinding {
  public:
   SensorBinding(TransceiverBindingStore& store,
                 TransceiverBindingStore::SensorKey key)
-      : id_(), store_(store), key_(key), synced_(false) {}
+      : loc_(), store_(store), key_(key), synced_(false) {}
 
-  UniversalSensorId get() const {
+  TransceiverSensorLocator get() const {
     sync();
-    return id_;
+    return loc_;
   }
 
   bool isBound() const {
     sync();
-    return id_.isDefined();
+    return loc_.isDefined();
   }
 
-  void bind(UniversalSensorId id) {
-    if (id_ == id) return;
-    id_ = id;
-    if (!id_.isDefined()) {
+  void bind(const TransceiverSensorLocator& loc) {
+    if (loc_ == loc) return;
+    loc_ = loc;
+    if (!loc_.isDefined()) {
       store_.clearSensorBinding(key_);
     } else {
-      store_.setSensorBinding(key_, id_);
+      store_.setSensorBinding(key_, loc_);
     }
     synced_ = true;
   }
 
   void unbind() {
-    id_ = UniversalSensorId();
+    loc_ = TransceiverSensorLocator();
     store_.clearSensorBinding(key_);
     synced_ = true;
   }
@@ -44,11 +45,11 @@ class SensorBinding {
  private:
   void sync() const {
     if (!synced_) {
-      id_ = store_.getSensorBinding(key_);
+      loc_ = store_.getSensorBinding(key_);
       synced_ = true;
     }
   }
-  mutable UniversalSensorId id_;
+  mutable TransceiverSensorLocator loc_;
 
   TransceiverBindingStore& store_;
   TransceiverBindingStore::SensorKey key_;
@@ -58,7 +59,7 @@ class SensorBinding {
 
 class BoundThermometer : public roo_temperature::Thermometer {
  public:
-  BoundThermometer(SensorUniverse& universe, const SensorBinding& binding)
+  BoundThermometer(TransceiverUniverse& universe, const SensorBinding& binding)
       : universe_(universe), binding_(&binding) {}
 
   Reading readTemperature() const override {
@@ -73,7 +74,7 @@ class BoundThermometer : public roo_temperature::Thermometer {
   }
 
  private:
-  SensorUniverse& universe_;
+  TransceiverUniverse& universe_;
   const SensorBinding* binding_;
 };
 

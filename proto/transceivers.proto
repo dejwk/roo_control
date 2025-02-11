@@ -1,9 +1,11 @@
 syntax = "proto3";
 
+import "nanopb.proto";
+
 package roo_control;
 
 enum Quantity {
-  kUnspecified = 0;
+  kUnspecifiedQuantity = 0;
 
   // Fundamental.
   kElapsedTime = 1; // [seconds].
@@ -51,15 +53,39 @@ enum Quantity {
   // Light.
   kLuminousIntensity = 90; // [lumen].
 
-  kColorHue = 95;  // [0-360).
+  kColorHue = 95;        // [0-360).
   kColorSaturation = 96; // [0-1].
   kColorBrightness = 97; // [0-1].
 
   // Geolocation.
-  kLatitude = 110; // [-90-90] (North is positive).
+  kLatitude = 110;  // [-90-90] (North is positive).
   kLongitude = 111; // [-180-180] (East is positive).
-  kAltitude = 112; // [m].
+  kAltitude = 112;  // [m].
 
   // Environmental.
   kAirHumidity = 130; // [%].
+}
+
+// enum TransceiverProtocol {
+//   kUnspecifiedProtocol = 0;
+//   kOneWireProtocol = 1;
+//   kRooEspNowProtocol = 2;
+// }
+
+message TransceiverDescriptor {
+  message Sensor {
+    string id = 1 [ (nanopb).max_size = 24 ];
+    Quantity quantity = 2;
+  }
+
+  message Actuator {
+    string id = 1 [ (nanopb).max_size = 24 ];
+    Quantity quantity = 2;
+  }
+
+  string schema = 1 [ (nanopb).max_size = 16 ];
+  string id = 2 [ (nanopb).max_size = 24 ];
+
+  repeated Sensor sensors = 3 [ (nanopb).max_count = 16 ];
+  repeated Actuator actuators = 4 [ (nanopb).max_count = 16 ];
 }

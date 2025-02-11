@@ -9,8 +9,9 @@ class TransceiverBindingStore {
  public:
   using SensorKey = uint32_t;
 
-  virtual UniversalSensorId getSensorBinding(SensorKey key) = 0;
-  virtual void setSensorBinding(SensorKey key, UniversalSensorId id) = 0;
+  virtual TransceiverSensorLocator getSensorBinding(SensorKey key) = 0;
+  virtual void setSensorBinding(SensorKey key,
+                                const TransceiverSensorLocator& locator) = 0;
   virtual void clearSensorBinding(SensorKey key) = 0;
 };
 

@@ -1,89 +1,146 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
+#include <string>
 #include <vector>  // for std::hash.
 
 namespace roo_control {
 
-enum PredefinedTransceiverFamily {
-  kNoDevice = 0,
-  kOneWire = 1,
-};
-
-using TransceiverFamilyId = uint32_t;
-using TransceiverDeviceId = uint64_t;
-using SensorIdx = uint32_t;
-using ActuatorIdx = uint32_t;
-
-class UniversalTransceiverDeviceId {
+class TransceiverDeviceSchema {
  public:
-  UniversalTransceiverDeviceId() : family_id_(0), device_id_(0) {}
+  TransceiverDeviceSchema() { schema_[0] = 0; }
 
-  bool isDefined() const { return family_id_ != kNoDevice; }
+  TransceiverDeviceSchema(const char* schema) { strncpy(schema_, schema, 16); }
 
-  UniversalTransceiverDeviceId(uint32_t family_id, uint64_t device_id)
-      : family_id_(family_id), device_id_(device_id) {}
+  const char* raw() const { return schema_; }
 
-  TransceiverFamilyId family_id() const { return family_id_; }
-  TransceiverDeviceId device_id() const { return device_id_; }
+  bool isDefined() const { return schema_[0] != 0; }
+
+  // buf must have capacity of at least 16.
+  void write_cstr(char* buf) const { strncpy(buf, schema_, 16); }
 
  private:
-  TransceiverFamilyId family_id_;
-  TransceiverDeviceId device_id_;
+  char schema_[16];
 };
 
-inline bool operator==(const UniversalTransceiverDeviceId& a,
-                       const UniversalTransceiverDeviceId& b) {
-  return a.family_id() == b.family_id() && a.device_id() == b.device_id();
+inline bool operator==(const TransceiverDeviceSchema& a,
+                       const TransceiverDeviceSchema& b) {
+  return strcmp(a.raw(), b.raw()) == 0;
 }
 
-struct UniversalTransceiverDeviceIdHashFn {
-  uint32_t operator()(const UniversalTransceiverDeviceId& val) const {
-    return ((val.device_id() >> 32) * 5 + val.device_id() * 11 +
-            val.family_id() * 17);
-  }
-};
+inline bool operator!=(const TransceiverDeviceSchema& a,
+                       const TransceiverDeviceSchema& b) {
+  return strcmp(a.raw(), b.raw()) != 0;
+}
 
-class UniversalSensorId {
+class TransceiverDeviceLocator {
  public:
-  UniversalSensorId() : device_id_(), sensor_idx_(0) {}
+  TransceiverDeviceLocator() : schema_() { device_id_[0] = 0; }
 
-  bool isDefined() const { return device_id_.isDefined(); }
+  TransceiverDeviceLocator(const char* schema, const char* device_id)
+      : schema_(schema) {
+    strncpy(device_id_, device_id, 24);
+  }
 
-  UniversalSensorId(uint32_t family_id, uint64_t device_id, uint32_t sensor_id)
-      : device_id_(family_id, device_id), sensor_idx_(sensor_id) {}
+  const TransceiverDeviceSchema& schema() const { return schema_; }
+  const char* device_id() const { return device_id_; }
 
-  TransceiverFamilyId family_id() const { return device_id_.family_id(); }
-  TransceiverDeviceId device_id() const { return device_id_.device_id(); }
-  SensorIdx sensor_idx() const { return sensor_idx_; }
+  bool isDefined() const { return schema_.isDefined(); }
+
+  void write_cstr(char* buf) const {
+    schema_.write_cstr(buf);
+    size_t len = strlen(buf);
+    if (len > 0) {
+      buf[len++] = ':';
+      strncpy(buf + len, device_id_, 24);
+    }
+  }
 
  private:
-  UniversalTransceiverDeviceId device_id_;
-  SensorIdx sensor_idx_;
+  TransceiverDeviceSchema schema_;
+  char device_id_[24];
 };
 
-inline bool operator==(const UniversalSensorId& a, const UniversalSensorId& b) {
-  return a.family_id() == b.family_id() && a.device_id() == b.device_id() &&
-         a.sensor_idx() == b.sensor_idx();
+inline bool operator==(const TransceiverDeviceLocator& a,
+                       const TransceiverDeviceLocator& b) {
+  return a.schema() == b.schema() && strcmp(a.device_id(), b.device_id()) == 0;
 }
 
-struct UniversalSensorHashFn {
-  uint32_t operator()(const UniversalSensorId& val) const {
-    return (val.sensor_idx() * 5 + val.device_id() * 61 +
-            val.family_id() * 131);
+class TransceiverSensorLocator {
+ public:
+  TransceiverSensorLocator() : device_locator_() { sensor_id_[0] = 0; }
+
+  TransceiverSensorLocator(const char* schema, const char* device_id,
+                           const char* sensor_id)
+      : device_locator_(schema, device_id) {
+    strncpy(sensor_id_, sensor_id, 24);
   }
+
+  TransceiverSensorLocator(const TransceiverDeviceLocator& device_loc,
+                           const char* sensor_id)
+      : device_locator_(device_loc) {
+    strncpy(sensor_id_, sensor_id, 24);
+  }
+
+  const TransceiverDeviceLocator& device_locator() const {
+    return device_locator_;
+  }
+
+  const char* sensor_id() const { return sensor_id_; }
+
+  bool isDefined() const { return device_locator().isDefined(); }
+
+  void write_cstr(char* buf) const {
+    device_locator_.write_cstr(buf);
+    size_t len = strlen(buf);
+    if (len > 0 && sensor_id_[0] != 0) {
+      buf[len++] = '/';
+      strncpy(buf + len, sensor_id_, 24);
+    }
+  }
+
+ private:
+  TransceiverDeviceLocator device_locator_;
+  char sensor_id_[24];
+};
+
+inline bool operator==(const TransceiverSensorLocator& a,
+                       const TransceiverSensorLocator& b) {
+  return a.device_locator() == b.device_locator() &&
+         strcmp(a.sensor_id(), b.sensor_id()) == 0;
+}
+
+class TransceiverActuatorLocator {
+ public:
+  TransceiverActuatorLocator() : device_locator_() { actuator_id_[0] = 0; }
+
+  TransceiverActuatorLocator(const char* schema, const char* device_id,
+                             const char* actuator_id)
+      : device_locator_(schema, device_id) {
+    strncpy(actuator_id_, actuator_id, 24);
+  }
+
+  const TransceiverDeviceLocator& device_locator() const {
+    return device_locator_;
+  }
+
+  const char* actuator_id() const { return actuator_id_; }
+
+  bool isDefined() const { return device_locator().isDefined(); }
+
+  void write_cstr(char* buf) const {
+    device_locator_.write_cstr(buf);
+    size_t len = strlen(buf);
+    if (len > 0 && actuator_id_[0] != 0) {
+      buf[len++] = '/';
+      strncpy(buf + len, actuator_id_, 24);
+    }
+  }
+
+ private:
+  TransceiverDeviceLocator device_locator_;
+  char actuator_id_[24];
 };
 
 }  // namespace roo_control
-
-namespace std {
-template <>
-struct hash<roo_control::UniversalTransceiverDeviceId> {
-  size_t operator()(
-      const roo_control::UniversalTransceiverDeviceId& val) const {
-    return ((val.device_id() >> 32) * 5 + val.device_id() * 11 +
-            val.family_id() * 17);
-  }
-};
-
-}  // namespace std

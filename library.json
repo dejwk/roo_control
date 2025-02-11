@@ -35,6 +35,7 @@
         "dejwk/roo_prefs": ">=1.0.3",
         "dejwk/roo_scheduler": ">=1.2.0",
         "dejwk/roo_temperature": ">0",
-        "dejwk/roo_time": ">0"
+        "dejwk/roo_time": ">0",
+        "nanopb/Nanopb": ">=0.4.91"
     }
 }

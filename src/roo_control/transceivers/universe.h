@@ -1,106 +1,70 @@
 #pragma once
 
-#include <vector>
+// #include <vector>
 
 #include "roo_collections/flat_small_hash_map.h"
 #include "roo_control/transceivers/family.h"
 #include "roo_control/transceivers/id.h"
+#include "roo_control/transceivers/notification.h"
 #include "roo_logging.h"
 
 namespace roo_control {
 
-// Represents a collection of dynamically managed sensors of the same functional
-// type, but potentially different implementations, managed by separate
-// 'families'. Example: a universe of temperature sensors, that can include the
-// 'OneWire' and 'Roo-EspNow' families.
-class SensorUniverse {
+class TransceiverUniverse {
  public:
-  struct FamilySpec {
-    TransceiverFamilyId id;
-    TransceiverFamily& family;
-  };
+  virtual ~TransceiverUniverse() = default;
 
-  SensorUniverse() {}
+  virtual int deviceCount() const = 0;
 
-  SensorUniverse(std::vector<FamilySpec> families) {
-    for (const auto& family : families) {
-      addFamily(family.id, family.family);
-    }
+  virtual TransceiverDeviceLocator device(size_t device_idx) const = 0;
+
+  virtual bool getDeviceDescriptor(
+      const TransceiverDeviceLocator& locator,
+      roo_control_TransceiverDescriptor& descriptor) const = 0;
+
+  virtual Measurement read(const TransceiverSensorLocator& locator) const = 0;
+
+  virtual bool write(const TransceiverActuatorLocator& locator,
+                     float value) const = 0;
+
+  virtual void requestUpdate() = 0;
+
+  virtual void addEventListener(TransceiverEventListener* listener) {}
+
+  virtual void removeEventListener(TransceiverEventListener* listener) {}
+};
+
+class SimpleSensorUniverse : public TransceiverUniverse {
+ public:
+  bool getDeviceDescriptor(
+      const TransceiverDeviceLocator& locator,
+      roo_control_TransceiverDescriptor& descriptor) const override {
+    strncpy(descriptor.schema, locator.schema().raw(), 16);
+    strncpy(descriptor.id, locator.device_id(), 24);
+    descriptor.sensors_count = 1;
+    descriptor.sensors[0].id[0] = 0;
+    descriptor.sensors[0].quantity = getSensorQuantity(locator);
+    descriptor.actuators_count = 0;
+    return true;
   }
 
-  void addFamily(TransceiverFamilyId id, TransceiverFamily& family) {
-    CHECK(!family_index_.contains(id))
-        << "Family " << id << " already registered.";
-    family_index_[id] = families_.size();
-    families_.emplace_back(id, &family);
+  Measurement read(const TransceiverSensorLocator& locator) const override {
+    CHECK_EQ(std::string(""), locator.sensor_id());
+    return readSensor(locator.device_locator());
   }
 
-  // Returns the number of registered families.
-  size_t familyCount() const { return families_.size(); }
-
-  // Returns the i-th family.
-  const TransceiverFamily& family(size_t idx) const {
-    return *families_[idx].family;
+  bool write(const TransceiverActuatorLocator& locator,
+             float value) const override {
+    LOG(FATAL) << "This device has no actuators.";
+    return false;
   }
 
-  // Returns the i-th family ID.
-  TransceiverFamilyId family_id(size_t idx) const { return families_[idx].id; }
+ protected:
+  virtual Measurement readSensor(
+      const TransceiverDeviceLocator& locator) const = 0;
 
-  Measurement read(UniversalSensorId id) const {
-    auto it = family_index_.find(id.family_id());
-    if (it == family_index_.end()) {
-      return Measurement();
-    }
-    int pos = it->second;
-    return families_[it->second].family->read(id.device_id(), id.sensor_idx());
-  }
-
-  // Requests sensor families that are able to do so, to update their state
-  // (i.e. available sensors and their readings).
-  void requestUpdate() {
-    for (auto& family : families_) {
-      family.family->requestUpdate();
-    }
-  }
-
-  // Registers a listener to be notified when sensors changed or new readings
-  // are available.
-  void addEventListener(TransceiverEventListener* listener) {
-    for (auto& family : families_) {
-      family.family->addEventListener(listener);
-    }
-  }
-
-  // Removes a previously registered listener.
-  void removeEventListener(TransceiverEventListener* listener) {
-    for (auto& family : families_) {
-      family.family->removeEventListener(listener);
-    }
-  }
-
-  // Generates a human-friendly, GUI-suitable name corresponding to the
-  // specified device ID.
-  std::string sensorUserFriendlyName(UniversalSensorId id) const {
-    auto it = family_index_.find(id.family_id());
-    if (it == family_index_.end()) {
-      return "<invalid>";
-    }
-    int pos = it->second;
-    return families_[it->second].family->sensorUserFriendlyName(
-        id.device_id(), id.sensor_idx());
-  }
-
- private:
-  struct FamilyInfo {
-    FamilyInfo(TransceiverFamilyId id, TransceiverFamily* family)
-        : id(id), family(family) {}
-
-    TransceiverFamilyId id;
-    TransceiverFamily* family;
-  };
-
-  std::vector<FamilyInfo> families_;
-  roo_collections::FlatSmallHashMap<TransceiverFamilyId, int> family_index_;
+  virtual roo_control_Quantity getSensorQuantity(
+      TransceiverDeviceLocator device_locator) const = 0;
 };
 
 }  // namespace roo_control

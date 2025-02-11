@@ -11,8 +11,9 @@ class ArduinoPreferencesTransceiverBindingStore
   ArduinoPreferencesTransceiverBindingStore()
       : collection_("roo/1w/bindings") {}
 
-  UniversalSensorId getSensorBinding(SensorKey key) override;
-  void setSensorBinding(SensorKey key, UniversalSensorId id) override;
+  TransceiverSensorLocator getSensorBinding(SensorKey key) override;
+  void setSensorBinding(SensorKey key,
+                        const TransceiverSensorLocator& locator) override;
   void clearSensorBinding(SensorKey key) override;
 
  private:

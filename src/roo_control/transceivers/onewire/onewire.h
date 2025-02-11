@@ -1,48 +1,53 @@
 #pragma once
 
-#include "roo_control/transceivers/family.h"
 #include "roo_control/transceivers/id.h"
+#include "roo_control/transceivers/universe.h"
 #include "roo_io/text/string_printf.h"
 #include "roo_onewire.h"
 #include "roo_temperature.h"
 
 namespace roo_control {
 
-class OneWireFamily : public SimpleSensorFamily {
+namespace {
+
+static const TransceiverDeviceSchema kOneWireSchema =
+    TransceiverDeviceSchema("1-Wire");
+
+}
+
+class OneWireUniverse : public SimpleSensorUniverse {
  public:
-  OneWireFamily(roo_onewire::OneWire& onewire)
+  OneWireUniverse(roo_onewire::OneWire& onewire)
       : onewire_(onewire), listener_(*this) {
     onewire_.thermometers().addEventListener(&listener_);
   }
 
-  ~OneWireFamily() { onewire_.thermometers().removeEventListener(&listener_); }
-
   int deviceCount() const override { return onewire_.thermometers().count(); }
 
-  TransceiverDeviceId deviceId(size_t idx) const override {
-    return (TransceiverDeviceId)onewire_.thermometers().rom_code(idx).raw();
-  }
-
-  std::string deviceUserFriendlyName(
-      TransceiverDeviceId device_id) const override {
+  TransceiverDeviceLocator device(size_t idx) const override {
     char code[17];
-    roo_onewire::RomCode(device_id).toCharArray(code);
+    onewire_.thermometers().rom_code(idx).toCharArray(code);
     code[16] = 0;
-    return std::string("1-Wire:") + code;
+    return TransceiverDeviceLocator(kOneWireSchema.raw(), code);
   }
 
-  roo_control_Quantity getSensorQuantity(
-      TransceiverDeviceId device_id) const override {
-    return roo_control_Quantity_kTemperature;
-  }
-
-  Measurement readSensor(TransceiverDeviceId device_id) const override {
+  Measurement readSensor(
+      const TransceiverDeviceLocator& locator) const override {
+    if (locator.schema() != kOneWireSchema) {
+      return Measurement();
+    }
+    roo_onewire::RomCode rom_code =
+        roo_onewire::RomCode::FromString(locator.device_id());
     const roo_onewire::Thermometer* t =
-        onewire_.thermometers().thermometerByRomCode(
-            roo_onewire::RomCode(device_id));
+        onewire_.thermometers().thermometerByRomCode(rom_code);
     return Measurement(roo_control_Quantity_kTemperature,
                        roo_time::Uptime::Now(),
                        t == nullptr ? nanf("") : t->temperature().degCelcius());
+  }
+
+  roo_control_Quantity getSensorQuantity(
+      TransceiverDeviceLocator device_locator) const override {
+    return roo_control_Quantity_kTemperature;
   }
 
   void requestUpdate() override { onewire_.update(); }
@@ -72,7 +77,7 @@ class OneWireFamily : public SimpleSensorFamily {
 
   class Listener : public roo_onewire::Thermometers::EventListener {
    public:
-    Listener(OneWireFamily& onewire) : onewire_(onewire) {}
+    Listener(OneWireUniverse& onewire) : onewire_(onewire) {}
 
     void discoveryCompleted() const override {
       onewire_.notifySensorsChanged();
@@ -83,7 +88,7 @@ class OneWireFamily : public SimpleSensorFamily {
     }
 
    private:
-    OneWireFamily& onewire_;
+    OneWireUniverse& onewire_;
   };
 
   roo_collections::FlatSmallHashSet<TransceiverEventListener*> event_listeners_;

@@ -19,5 +19,6 @@ cc_library(
         "//lib/roo_scheduler",
         "//roo_testing:arduino",
         "//roo_testing/frameworks/arduino-esp32-2.0.4/libraries/Wire",
+        "@nanopb//:nanopb"
     ],
 )

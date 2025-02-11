@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "roo_control/transceivers/quantity.pb.h"
+#include "transceivers.pb.h"
 #include "roo_time.h"
 
 namespace roo_control {
@@ -10,12 +10,12 @@ namespace roo_control {
 class Measurement {
  public:
   Measurement()
-      : quantity_(roo_control_Quantity_kUnspecified),
+      : quantity_(roo_control_Quantity_kUnspecifiedQuantity),
         time_micros_(0),
         value_(nanf("")) {}
 
   bool isDefined() const {
-    return (quantity_ != roo_control_Quantity_kUnspecified && !isnanf(value_));
+    return (quantity_ != roo_control_Quantity_kUnspecifiedQuantity && !isnanf(value_));
   }
 
   Measurement(roo_control_Quantity quantity, roo_time::Uptime time,
