@@ -2,8 +2,8 @@
 
 #include <cmath>
 
-#include "transceivers.pb.h"
 #include "roo_time.h"
+#include "transceivers.pb.h"
 
 namespace roo_control {
 
@@ -15,7 +15,8 @@ class Measurement {
         value_(nanf("")) {}
 
   bool isDefined() const {
-    return (quantity_ != roo_control_Quantity_kUnspecifiedQuantity && !isnanf(value_));
+    return (quantity_ != roo_control_Quantity_kUnspecifiedQuantity &&
+            !isnanf(value_));
   }
 
   Measurement(roo_control_Quantity quantity, roo_time::Uptime time,
@@ -37,7 +38,7 @@ class Measurement {
 
  private:
   struct {
-    roo_control_Quantity quantity_;
+    roo_control_Quantity quantity_ : 12;
     uint64_t time_micros_ : 52;
   };
   float value_;
