@@ -9,7 +9,7 @@ class ArduinoPreferencesTransceiverBindingStore
     : public TransceiverBindingStore {
  public:
   ArduinoPreferencesTransceiverBindingStore()
-      : collection_("roo/1w/bindings") {}
+      : collection_("roo/ct/bindings") {}
 
   TransceiverSensorLocator getSensorBinding(SensorKey key) override;
   void setSensorBinding(SensorKey key,
