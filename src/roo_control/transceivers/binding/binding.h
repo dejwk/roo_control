@@ -63,14 +63,17 @@ class BoundThermometer : public roo_temperature::Thermometer {
       : universe_(universe), binding_(&binding) {}
 
   Reading readTemperature() const override {
-    Measurement m = universe_.read(binding_->get());
-    if (!m.isDefined()) {
-      return Reading{.value = roo_temperature::Unknown(),
-                     .time = roo_time::Uptime::Start()};
+    TransceiverSensorLocator loc = binding_->get();
+    if (loc.isDefined()) {
+      Measurement m = universe_.read(binding_->get());
+      if (m.isDefined()) {
+        CHECK_EQ(roo_control_Quantity_kTemperature, m.quantity());
+        return Reading{.value = roo_temperature::DegCelcius(m.value()),
+                       .time = m.time()};
+      }
     }
-    CHECK_EQ(roo_control_Quantity_kTemperature, m.quantity());
-    return Reading{.value = roo_temperature::DegCelcius(m.value()),
-                   .time = m.time()};
+    return Reading{.value = roo_temperature::Unknown(),
+                   .time = roo_time::Uptime::Start()};
   }
 
  private:
