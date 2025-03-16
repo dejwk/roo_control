@@ -59,7 +59,7 @@ typedef enum _roo_control_Quantity {
     /* Environmental. */
     roo_control_Quantity_kAirHumidity = 130, /* [%]. */
     /* Generic control. */
-    roo_control_Quantity_kRelay = 150 /* on/off (0.0 or 1.0). */
+    roo_control_Quantity_kBinaryState = 150 /* on/off (0.0 or 1.0). */
 } roo_control_Quantity;
 
 /* Struct definitions */
@@ -189,8 +189,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _roo_control_Quantity_MIN roo_control_Quantity_kUnspecifiedQuantity
-#define _roo_control_Quantity_MAX roo_control_Quantity_kRelay
-#define _roo_control_Quantity_ARRAYSIZE ((roo_control_Quantity)(roo_control_Quantity_kRelay+1))
+#define _roo_control_Quantity_MAX roo_control_Quantity_kBinaryState
+#define _roo_control_Quantity_ARRAYSIZE ((roo_control_Quantity)(roo_control_Quantity_kBinaryState+1))
 
 
 #define roo_control_TransceiverDescriptor_Sensor_quantity_ENUMTYPE roo_control_Quantity

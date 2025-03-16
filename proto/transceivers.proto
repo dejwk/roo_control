@@ -66,7 +66,7 @@ enum Quantity {
   kAirHumidity = 130; // [%].
 
   // Generic control.
-  kRelay = 150; // on/off (0.0 or 1.0).
+  kBinaryState = 150; // on/off (0.0 or 1.0).
 }
 
 message TransceiverDescriptor {
