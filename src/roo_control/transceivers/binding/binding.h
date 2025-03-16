@@ -5,7 +5,6 @@
 #include "roo_control/transceivers/binding/hal/store.h"
 #include "roo_control/transceivers/measurement.h"
 #include "roo_control/transceivers/universe.h"
-#include "roo_temperature.h"
 
 namespace roo_control {
 
@@ -57,23 +56,17 @@ class SensorBinding {
   mutable bool synced_;
 };
 
-class BoundThermometer : public roo_temperature::Thermometer {
+class BoundSensor {
  public:
-  BoundThermometer(TransceiverUniverse& universe, const SensorBinding& binding)
+  BoundSensor(TransceiverUniverse& universe, const SensorBinding& binding)
       : universe_(universe), binding_(&binding) {}
 
-  Reading readTemperature() const override {
+  Measurement read() const {
     TransceiverSensorLocator loc = binding_->get();
     if (loc.isDefined()) {
-      Measurement m = universe_.read(binding_->get());
-      if (m.isDefined()) {
-        CHECK_EQ(roo_control_Quantity_kTemperature, m.quantity());
-        return Reading{.value = roo_temperature::DegCelcius(m.value()),
-                       .time = m.time()};
-      }
+      return universe_.read(binding_->get());
     }
-    return Reading{.value = roo_temperature::Unknown(),
-                   .time = roo_time::Uptime::Start()};
+    return Measurement();
   }
 
  private:
