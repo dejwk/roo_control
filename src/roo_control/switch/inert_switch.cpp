@@ -1,4 +1,4 @@
-#include "roo_control/inert_switch.h"
+#include "roo_control/switch/inert_switch.h"
 
 namespace roo_control {
 

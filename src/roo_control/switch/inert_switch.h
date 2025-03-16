@@ -1,6 +1,6 @@
 #pragma once
 
-#include "roo_control/switch.h"
+#include "roo_control/switch/switch.h"
 #include "roo_scheduler.h"
 #include "roo_time.h"
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "roo_control/binary_logical_state.h"
-#include "roo_control/selector.h"
+#include "roo_control/selector/selector.h"
 #include "roo_logging.h"
 
 namespace roo_control {
