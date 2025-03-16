@@ -32,6 +32,7 @@
     "dependencies": {
         "Wire": ">0",
         "dejwk/roo_logging": ">=1.0.4",
+        "dejwk/roo_collections": ">=1.1.6",
         "dejwk/roo_prefs": ">=1.0.3",
         "dejwk/roo_scheduler": ">=1.2.0",
         "dejwk/roo_temperature": ">0",
