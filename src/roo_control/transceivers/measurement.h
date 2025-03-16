@@ -14,6 +14,10 @@ class Measurement {
         time_micros_(0),
         value_(nanf("")) {}
 
+  bool isInitial() const {
+    return (isnanf(value_) && time_micros_ == 0);
+  }
+
   bool isDefined() const {
     return (quantity_ != roo_control_Quantity_kUnspecifiedQuantity &&
             !isnanf(value_));
