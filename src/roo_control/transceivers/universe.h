@@ -15,7 +15,8 @@ class TransceiverUniverse {
 
   virtual int deviceCount() const = 0;
 
-  virtual TransceiverDeviceLocator device(size_t device_idx) const = 0;
+  virtual void forEachDevice(
+      std::function<bool(const TransceiverDeviceLocator&)> callback) const = 0;
 
   virtual bool getDeviceDescriptor(
       const TransceiverDeviceLocator& locator,
@@ -38,8 +39,6 @@ class SimpleSensorUniverse : public TransceiverUniverse {
   bool getDeviceDescriptor(
       const TransceiverDeviceLocator& locator,
       roo_control_TransceiverDescriptor& descriptor) const override {
-    strncpy(descriptor.schema, locator.schema().raw(), 16);
-    strncpy(descriptor.id, locator.device_id(), 24);
     descriptor.sensors_count = 1;
     descriptor.sensors[0].id[0] = 0;
     descriptor.sensors[0].quantity = getSensorQuantity(locator);
@@ -48,7 +47,7 @@ class SimpleSensorUniverse : public TransceiverUniverse {
   }
 
   Measurement read(const TransceiverSensorLocator& locator) const override {
-    CHECK_EQ(std::string(""), locator.sensor_id());
+    CHECK(locator.sensor_id().empty());
     return readSensor(locator.device_locator());
   }
 

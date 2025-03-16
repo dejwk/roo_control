@@ -24,11 +24,15 @@ class OneWireUniverse : public SimpleSensorUniverse {
 
   int deviceCount() const override { return onewire_.thermometers().count(); }
 
-  TransceiverDeviceLocator device(size_t idx) const override {
+  void forEachDevice(
+      std::function<bool(const TransceiverDeviceLocator&)> callback) const {
     char code[17];
-    onewire_.thermometers().rom_code(idx).toCharArray(code);
-    code[16] = 0;
-    return TransceiverDeviceLocator(kOneWireSchema.raw(), code);
+    for (const auto& t : onewire_.thermometers()) {
+      t.rom_code().toCharArray(code);
+      code[16] = 0;
+      TransceiverDeviceLocator locator(kOneWireSchema, code);
+      if (!callback(locator)) return;
+    }
   }
 
   Measurement readSensor(
@@ -37,7 +41,7 @@ class OneWireUniverse : public SimpleSensorUniverse {
       return Measurement();
     }
     roo_onewire::RomCode rom_code =
-        roo_onewire::RomCode::FromString(locator.device_id());
+        roo_onewire::RomCode::FromString(locator.device_id().c_str());
     const roo_onewire::Thermometer* t =
         onewire_.thermometers().thermometerByRomCode(rom_code);
     return Measurement(roo_control_Quantity_kTemperature,
