@@ -64,13 +64,10 @@ enum Quantity {
 
   // Environmental.
   kAirHumidity = 130; // [%].
-}
 
-// enum TransceiverProtocol {
-//   kUnspecifiedProtocol = 0;
-//   kOneWireProtocol = 1;
-//   kRooEspNowProtocol = 2;
-// }
+  // Generic control.
+  kRelay = 150; // on/off (0.0 or 1.0).
+}
 
 message TransceiverDescriptor {
   message Sensor {
@@ -83,9 +80,94 @@ message TransceiverDescriptor {
     Quantity quantity = 2;
   }
 
-  string schema = 1 [ (nanopb).max_size = 16 ];
-  string id = 2 [ (nanopb).max_size = 24 ];
-
   repeated Sensor sensors = 3 [ (nanopb).max_count = 16 ];
   repeated Actuator actuators = 4 [ (nanopb).max_count = 16 ];
+}
+
+message TransceiverClientMessage {
+  message RequestUpdate {}
+
+  message RequestState {}
+
+  message Write {
+    string device_locator_schema = 1 [ (nanopb).max_size = 16 ];
+    string device_locator_id = 2 [ (nanopb).max_size = 24 ];
+    string device_locator_actuator_id = 3 [ (nanopb).max_size = 24 ];
+    float value = 4;
+  }
+
+  oneof contents {
+    RequestUpdate request_update = 1;
+    RequestState request_state = 2;
+    Write write = 3;
+  }
+}
+
+message TransceiverServerMessage {
+  message TransceiverUpdateBegin { bool delta = 1; }
+
+  message DescriptorAdded {
+    uint32 key = 1;
+    TransceiverDescriptor descriptor = 2;
+  }
+
+  message DescriptorRemoved { uint32 key = 1; }
+
+  message DeviceAdded {
+    string locator_schema = 1 [ (nanopb).max_size = 16 ];
+    string locator_id = 2 [ (nanopb).max_size = 24 ];
+    uint32 descriptor_key = 3;
+  }
+
+  message DeviceRemoved {
+    uint32 prev_index = 1;
+  }
+
+  message DevicePreserved {
+    uint32 prev_index = 1;
+    optional uint32 count = 2;
+  }
+
+  message DeviceModified {
+    uint32 prev_index = 1;
+    uint32 descriptor_key = 3;
+  }
+
+  message TransceiverUpdateEnd {}
+
+  message ReadingsBegin {}
+
+  message ReadingsEnd {}
+
+  message Reading {
+    string device_locator_schema = 1 [ (nanopb).max_size = 16 ];
+    string device_locator_id = 2 [ (nanopb).max_size = 24 ];
+
+    message SensorValue {
+      string device_locator_sensor_id = 1 [ (nanopb).max_size = 24 ];
+      float value = 2;
+      uint64 age_ms = 3;
+    }
+
+    repeated SensorValue sensor_values = 3 [ (nanopb).max_count = 16 ];
+  }
+
+  oneof contents {
+    TransceiverUpdateBegin transceiver_update_begin = 1;
+
+    DescriptorAdded descriptor_added = 2;
+    DescriptorRemoved descriptor_removed = 3;
+
+    // Device device = 4;
+    DeviceAdded device_added = 5;
+    DeviceRemoved device_removed = 6;
+    DevicePreserved device_preserved = 7;
+    DeviceModified device_modified = 8;
+
+    TransceiverUpdateEnd transceiver_update_end = 9;
+
+    ReadingsBegin readings_begin = 10;
+    Reading reading = 11;
+    ReadingsEnd readings_end = 12;
+  }
 }
