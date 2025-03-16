@@ -1,146 +1,176 @@
 #pragma once
 
-#include <cstdint>
-#include <cstring>
 #include <string>
-#include <vector>  // for std::hash.
+
+#include "roo_collections/hash.h"
+#include "roo_collections/small_string.h"
+#include "roo_logging.h"
 
 namespace roo_control {
 
-class TransceiverDeviceSchema {
- public:
-  TransceiverDeviceSchema() { schema_[0] = 0; }
-
-  TransceiverDeviceSchema(const char* schema) { strncpy(schema_, schema, 16); }
-
-  const char* raw() const { return schema_; }
-
-  bool isDefined() const { return schema_[0] != 0; }
-
-  // buf must have capacity of at least 16.
-  void write_cstr(char* buf) const { strncpy(buf, schema_, 16); }
-
- private:
-  char schema_[16];
-};
-
-inline bool operator==(const TransceiverDeviceSchema& a,
-                       const TransceiverDeviceSchema& b) {
-  return strcmp(a.raw(), b.raw()) == 0;
-}
-
-inline bool operator!=(const TransceiverDeviceSchema& a,
-                       const TransceiverDeviceSchema& b) {
-  return strcmp(a.raw(), b.raw()) != 0;
-}
+using TransceiverDeviceSchema = roo_collections::SmallString<16>;
+using TransceiverDeviceId = roo_collections::SmallString<24>;
+using TransceiverSensorId = roo_collections::SmallString<24>;
+using TransceiverActuatorId = roo_collections::SmallString<24>;
 
 class TransceiverDeviceLocator {
  public:
-  TransceiverDeviceLocator() : schema_() { device_id_[0] = 0; }
+  TransceiverDeviceLocator();
 
-  TransceiverDeviceLocator(const char* schema, const char* device_id)
-      : schema_(schema) {
-    strncpy(device_id_, device_id, 24);
-  }
+  TransceiverDeviceLocator(roo::string_view schema, roo::string_view device_id);
 
   const TransceiverDeviceSchema& schema() const { return schema_; }
-  const char* device_id() const { return device_id_; }
+  const TransceiverDeviceId& device_id() const { return device_id_; }
 
-  bool isDefined() const { return schema_.isDefined(); }
+  bool isDefined() const { return !schema_.empty(); }
 
-  void write_cstr(char* buf) const {
-    schema_.write_cstr(buf);
-    size_t len = strlen(buf);
-    if (len > 0) {
-      buf[len++] = ':';
-      strncpy(buf + len, device_id_, 24);
-    }
-  }
+  void write_cstr(char* buf) const;
 
  private:
   TransceiverDeviceSchema schema_;
-  char device_id_[24];
+  TransceiverDeviceId device_id_;
 };
 
 inline bool operator==(const TransceiverDeviceLocator& a,
                        const TransceiverDeviceLocator& b) {
-  return a.schema() == b.schema() && strcmp(a.device_id(), b.device_id()) == 0;
+  return a.schema() == b.schema() && a.device_id() == b.device_id();
+}
+
+inline bool operator!=(const TransceiverDeviceLocator& a,
+                       const TransceiverDeviceLocator& b) {
+  return !(a == b);
 }
 
 class TransceiverSensorLocator {
  public:
-  TransceiverSensorLocator() : device_locator_() { sensor_id_[0] = 0; }
+  TransceiverSensorLocator();
 
-  TransceiverSensorLocator(const char* schema, const char* device_id,
-                           const char* sensor_id)
-      : device_locator_(schema, device_id) {
-    strncpy(sensor_id_, sensor_id, 24);
-  }
+  TransceiverSensorLocator(roo::string_view schema, roo::string_view device_id,
+                           roo::string_view sensor_id);
 
   TransceiverSensorLocator(const TransceiverDeviceLocator& device_loc,
-                           const char* sensor_id)
-      : device_locator_(device_loc) {
-    strncpy(sensor_id_, sensor_id, 24);
-  }
+                           roo::string_view sensor_id);
 
   const TransceiverDeviceLocator& device_locator() const {
     return device_locator_;
   }
 
-  const char* sensor_id() const { return sensor_id_; }
+  const TransceiverDeviceSchema& schema() const {
+    return device_locator_.schema();
+  }
+
+  const TransceiverDeviceId& device_id() const {
+    return device_locator_.device_id();
+  }
+
+  const TransceiverSensorId& sensor_id() const { return sensor_id_; }
 
   bool isDefined() const { return device_locator().isDefined(); }
 
-  void write_cstr(char* buf) const {
-    device_locator_.write_cstr(buf);
-    size_t len = strlen(buf);
-    if (len > 0 && sensor_id_[0] != 0) {
-      buf[len++] = '/';
-      strncpy(buf + len, sensor_id_, 24);
-    }
-  }
+  void write_cstr(char* buf) const;
 
  private:
   TransceiverDeviceLocator device_locator_;
-  char sensor_id_[24];
+  TransceiverSensorId sensor_id_;
 };
 
 inline bool operator==(const TransceiverSensorLocator& a,
                        const TransceiverSensorLocator& b) {
   return a.device_locator() == b.device_locator() &&
-         strcmp(a.sensor_id(), b.sensor_id()) == 0;
+         a.sensor_id() == b.sensor_id();
 }
 
 class TransceiverActuatorLocator {
  public:
-  TransceiverActuatorLocator() : device_locator_() { actuator_id_[0] = 0; }
+  TransceiverActuatorLocator();
 
-  TransceiverActuatorLocator(const char* schema, const char* device_id,
-                             const char* actuator_id)
-      : device_locator_(schema, device_id) {
-    strncpy(actuator_id_, actuator_id, 24);
-  }
+  TransceiverActuatorLocator(const TransceiverDeviceLocator& device_loc,
+                             roo::string_view actuator_id);
+
+  TransceiverActuatorLocator(roo::string_view schema,
+                             roo::string_view device_id,
+                             roo::string_view actuator_id);
 
   const TransceiverDeviceLocator& device_locator() const {
     return device_locator_;
   }
 
-  const char* actuator_id() const { return actuator_id_; }
+  const TransceiverDeviceSchema& schema() const {
+    return device_locator_.schema();
+  }
+
+  const TransceiverDeviceId& device_id() const {
+    return device_locator_.device_id();
+  }
+
+  const TransceiverActuatorId& actuator_id() const { return actuator_id_; }
 
   bool isDefined() const { return device_locator().isDefined(); }
 
-  void write_cstr(char* buf) const {
-    device_locator_.write_cstr(buf);
-    size_t len = strlen(buf);
-    if (len > 0 && actuator_id_[0] != 0) {
-      buf[len++] = '/';
-      strncpy(buf + len, actuator_id_, 24);
-    }
-  }
+  void write_cstr(char* buf) const;
 
  private:
   TransceiverDeviceLocator device_locator_;
-  char actuator_id_[24];
+  TransceiverActuatorId actuator_id_;
 };
 
+inline bool operator==(const TransceiverActuatorLocator& a,
+                       const TransceiverActuatorLocator& b) {
+  return a.device_locator() == b.device_locator() &&
+         a.actuator_id() == b.actuator_id();
+}
+
 }  // namespace roo_control
+
+namespace std {
+
+template <>
+struct hash<roo_control::TransceiverDeviceSchema> {
+  size_t operator()(const roo_control::TransceiverDeviceSchema& schema) const {
+    return roo_collections::murmur3_32(schema.c_str(), strlen(schema.c_str()),
+                                       0);
+  }
+};
+
+template <>
+struct hash<roo_control::TransceiverDeviceLocator> {
+  size_t operator()(const roo_control::TransceiverDeviceLocator& loc) const {
+    return roo_collections::murmur3_32(
+        loc.device_id().c_str(), strlen(loc.device_id().c_str()),
+        std::hash<roo_control::TransceiverDeviceSchema>()(loc.schema()));
+  }
+};
+
+template <>
+struct hash<roo_control::TransceiverSensorLocator> {
+  size_t operator()(const roo_control::TransceiverSensorLocator& loc) const {
+    return roo_collections::murmur3_32(
+        loc.sensor_id().c_str(), strlen(loc.sensor_id().c_str()),
+        std::hash<roo_control::TransceiverDeviceLocator>()(
+            loc.device_locator()));
+  }
+};
+
+template <>
+struct hash<roo_control::TransceiverActuatorLocator> {
+  size_t operator()(const roo_control::TransceiverActuatorLocator& loc) const {
+    return roo_collections::murmur3_32(
+        loc.actuator_id().c_str(), strlen(loc.actuator_id().c_str()),
+        std::hash<roo_control::TransceiverDeviceLocator>()(
+            loc.device_locator()));
+  }
+};
+
+}  // namespace std
+
+roo_logging::Stream& operator<<(
+    roo_logging::Stream& s, const roo_control::TransceiverDeviceSchema& schema);
+
+roo_logging::Stream& operator<<(
+    roo_logging::Stream& s, const roo_control::TransceiverDeviceLocator& loc);
+
+roo_logging::Stream& operator<<(
+    roo_logging::Stream& s, const roo_control::TransceiverSensorLocator& loc);
+
+roo_logging::Stream& operator<<(
+    roo_logging::Stream& s, const roo_control::TransceiverActuatorLocator& loc);
