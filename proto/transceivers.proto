@@ -67,6 +67,7 @@ enum Quantity {
 
   // Generic control.
   kBinaryState = 150; // on/off (0.0 or 1.0).
+  kMultiState = 151;
 }
 
 message TransceiverDescriptor {
