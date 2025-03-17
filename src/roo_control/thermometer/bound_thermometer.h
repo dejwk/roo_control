@@ -15,7 +15,7 @@ class BoundThermometer : public Thermometer {
     if (m.isDefined()) {
       CHECK_EQ(roo_control_Quantity_kTemperature, m.quantity());
     }
-    return Reading{.value = roo_temperature::DegCelcius(m.value()),
+    return Reading{.value = roo_quantity::TemperatureDegCelcius(m.value()),
                    .time = m.time()};
   }
 
@@ -23,4 +23,4 @@ class BoundThermometer : public Thermometer {
   BoundSensor bound_sensor_;
 };
 
-}
+}  // namespace roo_control

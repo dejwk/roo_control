@@ -4,7 +4,7 @@
 #include "roo_control/transceivers/universe.h"
 #include "roo_io/text/string_printf.h"
 #include "roo_onewire.h"
-#include "roo_temperature.h"
+#include "roo_quantity/temperature.h"
 
 namespace roo_control {
 

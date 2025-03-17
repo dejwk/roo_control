@@ -2,7 +2,6 @@
 
 #include "roo_control/transceivers/id.h"
 #include "roo_control/transceivers/measurement.h"
-#include "roo_temperature.h"
 
 namespace roo_control {
 

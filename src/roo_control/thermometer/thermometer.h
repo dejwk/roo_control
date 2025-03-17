@@ -1,7 +1,7 @@
 #pragma once
 
 #include "roo_logging.h"
-#include "roo_temperature.h"
+#include "roo_quantity/temperature.h"
 
 namespace roo_control {
 
@@ -10,7 +10,7 @@ class Thermometer {
  public:
   // Captures a temperature measured at a specific time.
   struct Reading {
-    roo_temperature::Temperature value;
+    roo_quantity::Temperature value;
     roo_time::Uptime time;
   };
 

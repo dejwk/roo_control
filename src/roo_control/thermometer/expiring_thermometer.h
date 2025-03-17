@@ -24,7 +24,7 @@ class ExpiringThermometer : public Thermometer {
   Reading readTemperature() const override {
     Reading reading = thermometer_->readTemperature();
     if (reading.time + expiration_ < roo_time::Uptime::Now()) {
-      reading.value = roo_temperature::Unknown();
+      reading.value = roo_quantity::UnknownTemperature();
     }
     return reading;
   }
