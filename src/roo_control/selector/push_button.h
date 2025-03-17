@@ -14,7 +14,10 @@ class PushButton : public BinarySelector {
   PushButton(BinarySelector& selector,
              BinaryLogicalState idle_state = BINARY_STATE_HIGH);
 
-  BinaryLogicalState getState() const override { return state_; }
+  bool getState(BinaryLogicalState& result) const override {
+    result = state_;
+    return true;
+  }
 
   // Needs to be called periodically, and frequently (every 5-10 ms).
   void tick();
@@ -34,6 +37,7 @@ class PushButton : public BinarySelector {
   BinarySelector& selector_;
   const BinaryLogicalState idle_state_;
 
+  bool has_state_;
   BinaryLogicalState state_;
   roo_time::Uptime last_state_change_time_;
   roo_time::Uptime prev_state_change_time_;

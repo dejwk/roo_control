@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#include "roo_control/selector.h"
+#include "roo_control/selector/selector.h"
 
 namespace roo_control {
 
@@ -11,8 +11,9 @@ class GpioConnector : public BinarySelector {
     pinMode(pin_, INPUT | pull_mode);
   }
 
-  BinaryLogicalState getState() const override {
-    return (BinaryLogicalState)digitalRead(pin_);
+  bool getState(BinaryLogicalState& result) const override {
+    result = (BinaryLogicalState)digitalRead(pin_);
+    return true;
   }
 
  private:

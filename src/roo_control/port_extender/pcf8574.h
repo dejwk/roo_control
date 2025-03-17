@@ -25,7 +25,7 @@ class Pcf8574 {
     Port(Pcf8574& extender, uint8_t port);
 
     bool setState(BinaryLogicalState state) override;
-    BinaryLogicalState getState() const override;
+    bool getState(BinaryLogicalState& result) const override;
 
    private:
     Pcf8574& extender_;
@@ -42,7 +42,7 @@ class Pcf8574 {
     OutputPort(Pcf8574& extender, uint8_t port);
 
     bool setState(BinaryLogicalState state) override;
-    BinaryLogicalState getState() const override;
+    bool getState(BinaryLogicalState& result) const override;
 
    private:
     Pcf8574& extender_;

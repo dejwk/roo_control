@@ -14,8 +14,9 @@ class GpioRelay : public BinarySwitch {
     return digitalRead(pin_) == state;
   }
 
-  BinaryLogicalState getState() const override {
-    return (BinaryLogicalState)digitalRead(pin_);
+  bool getState(BinaryLogicalState& result) const override {
+    result = (BinaryLogicalState)digitalRead(pin_);
+    return true;
   }
 
  private:

@@ -10,8 +10,9 @@ bool Pcf8574::Port::setState(BinaryLogicalState state) {
   return extender_.writePort(port_, state);
 }
 
-BinaryLogicalState Pcf8574::Port::getState() const {
-  return extender_.readPort(port_);
+bool Pcf8574::Port::getState(BinaryLogicalState& result) const {
+  result = extender_.readPort(port_);
+  return true;
 }
 
 Pcf8574::Port::Port(Pcf8574& extender, uint8_t port)
@@ -21,9 +22,10 @@ bool Pcf8574::OutputPort::setState(BinaryLogicalState state) {
   return extender_.writePort(port_, state);
 }
 
-BinaryLogicalState Pcf8574::OutputPort::getState() const {
-  return ((extender_.last_written_ & (1 << port_)) != 0) ? BINARY_STATE_HIGH
-                                                         : BINARY_STATE_LOW;
+bool Pcf8574::OutputPort::getState(BinaryLogicalState& result) const {
+  result = ((extender_.last_written_ & (1 << port_)) != 0) ? BINARY_STATE_HIGH
+                                                           : BINARY_STATE_LOW;
+  return true;
 }
 
 Pcf8574::OutputPort::OutputPort(Pcf8574& extender, uint8_t port)
@@ -37,18 +39,16 @@ Pcf8574::Pcf8574(TwoWire& wire, uint8_t addr)
       last_read_time_(Uptime::Start()),
       last_read_cache_duration_(Millis(20)) {}
 
+// // Reads the level of the specified port. For ports used as output, the value
+// // will reflect what was last written.
+// // On a communication failure, returns the last known state.
+// BinaryLogicalState readPort(uint8_t port);
 
-  // // Reads the level of the specified port. For ports used as output, the value
-  // // will reflect what was last written.
-  // // On a communication failure, returns the last known state.
-  // BinaryLogicalState readPort(uint8_t port);
-
-  // // Writes the level of the specified output port. Returns false on a
-  // // communication failure. For input ports, it is OK to write HIGH - that will
-  // // allow the slave to continue driving the level actaully seen by readPort.
-  // // Writing LOW will force the LOW state.
-  // bool writePort(uint8_t port, BinaryLogicalState state);
-
+// // Writes the level of the specified output port. Returns false on a
+// // communication failure. For input ports, it is OK to write HIGH - that will
+// // allow the slave to continue driving the level actaully seen by readPort.
+// // Writing LOW will force the LOW state.
+// bool writePort(uint8_t port, BinaryLogicalState state);
 
 BinaryLogicalState Pcf8574::readPort(uint8_t port) {
   uint8_t data;

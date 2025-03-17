@@ -31,7 +31,7 @@ class InertSwitch : public Switch<StateT> {
   virtual ~InertSwitch() = default;
 
   // Returns the actual state the switch is currently at.
-  State getState() const override { return actuator_.getState(); }
+  getState(State& result) const override { return actuator_.getState(result); }
 
   // Returns the state that the switch has been requested to take. The actual
   // state may lag behind due to inertia.

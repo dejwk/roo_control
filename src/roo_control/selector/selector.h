@@ -1,7 +1,7 @@
 #pragma once
 
-#include "roo_logging.h"
 #include "roo_control/binary_logical_state.h"
+#include "roo_logging.h"
 
 namespace roo_control {
 
@@ -23,11 +23,9 @@ class Selector {
  public:
   virtual ~Selector() = default;
 
-  // Returns the current state of the switch.
-  //
-  // If the implementation can fail to retrieve the state, the implementation
-  // should LOG(ERROR) and return the last known state.
-  virtual State getState() const = 0;
+  // Retrieves the current state of the selector, or returns false when the
+  // state cannot be retrieved.
+  virtual bool getState(State& result) const = 0;
 };
 
 // Materialization for a common case of a two-state selector, usually driven by
