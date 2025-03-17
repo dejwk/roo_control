@@ -5,6 +5,7 @@
 #include "roo_control/transceivers/binding/hal/store.h"
 #include "roo_control/transceivers/measurement.h"
 #include "roo_control/transceivers/universe.h"
+#include "roo_logging.h"
 
 namespace roo_control {
 
@@ -42,6 +43,8 @@ class SensorBinding {
   }
 
  private:
+  friend roo_logging::Stream& operator<<(roo_logging::Stream& os, const SensorBinding& binding);
+
   void sync() const {
     if (!synced_) {
       loc_ = store_.getSensorBinding(key_);
@@ -70,6 +73,8 @@ class BoundSensor {
   }
 
  private:
+  friend roo_logging::Stream& operator<<(roo_logging::Stream& os, const BoundSensor& sensor);
+
   TransceiverUniverse& universe_;
   const SensorBinding* binding_;
 };
