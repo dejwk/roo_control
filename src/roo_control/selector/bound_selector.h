@@ -1,14 +1,15 @@
 #pragma once
 
 #include "roo_control/selector/selector.h"
-#include "roo_control/transceivers/binding/binding.h"
+#include "roo_transceivers/binding/binding.h"
 
 namespace roo_control {
 
 template <typename State>
 class BoundSelector : public Selector<State> {
  public:
-  BoundSelector(TransceiverUniverse& universe, const SensorBinding& binding)
+  BoundSelector(roo_transceivers::Universe& universe,
+                const roo_transceivers::SensorBinding& binding)
       : bound_sensor_(universe, binding), state_() {}
 
   bool getState(State& result) const override {
@@ -28,18 +29,19 @@ class BoundSelector : public Selector<State> {
   }
 
  private:
-  BoundSensor bound_sensor_;
+  roo_transceivers::BoundSensor bound_sensor_;
 };
 
 template <>
 class BoundSelector<BinaryLogicalState> : public Selector<BinaryLogicalState> {
  public:
-  BoundSelector<BinaryLogicalState>(TransceiverUniverse& universe,
-                                    const SensorBinding& binding)
+  BoundSelector<BinaryLogicalState>(
+      roo_transceivers::Universe& universe,
+      const roo_transceivers::SensorBinding& binding)
       : bound_sensor_(universe, binding) {}
 
   bool getState(BinaryLogicalState& result) const override {
-    Measurement m = bound_sensor_.read();
+    roo_transceivers::Measurement m = bound_sensor_.read();
     if (m.isDefined()) {
       CHECK(m.quantity() == roo_control_Quantity_kBinaryState ||
             m.quantity() == roo_control_Quantity_kMultiState);
@@ -55,7 +57,7 @@ class BoundSelector<BinaryLogicalState> : public Selector<BinaryLogicalState> {
   }
 
  private:
-  BoundSensor bound_sensor_;
+  roo_transceivers::BoundSensor bound_sensor_;
 };
 
 using BoundBinarySelector = BoundSelector<BinaryLogicalState>;

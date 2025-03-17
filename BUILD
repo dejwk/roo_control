@@ -17,6 +17,7 @@ cc_library(
         "//lib/roo_onewire",
         "//lib/roo_prefs",
         "//lib/roo_scheduler",
+        "//lib/roo_transceivers",
         "//roo_testing:arduino",
         "//roo_testing/frameworks/arduino-esp32-2.0.4/libraries/Wire",
         "@nanopb//:nanopb"

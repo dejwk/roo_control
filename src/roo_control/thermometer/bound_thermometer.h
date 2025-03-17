@@ -1,26 +1,27 @@
 #pragma once
 
 #include "roo_control/thermometer/thermometer.h"
-#include "roo_control/transceivers/binding/binding.h"
+#include "roo_transceivers/binding/binding.h"
 
 namespace roo_control {
 
 class BoundThermometer : public Thermometer {
  public:
-  BoundThermometer(TransceiverUniverse& universe, const SensorBinding& binding)
+  BoundThermometer(roo_transceivers::Universe& universe,
+                   const roo_transceivers::SensorBinding& binding)
       : bound_sensor_(universe, binding) {}
 
   Reading readTemperature() const override {
-    Measurement m = bound_sensor_.read();
+    roo_transceivers::Measurement m = bound_sensor_.read();
     if (m.isDefined()) {
-      CHECK_EQ(roo_control_Quantity_kTemperature, m.quantity());
+      CHECK_EQ(roo_transceivers_Quantity_kTemperature, m.quantity());
     }
     return Reading{.value = roo_quantity::TemperatureDegCelcius(m.value()),
                    .time = m.time()};
   }
 
  private:
-  BoundSensor bound_sensor_;
+  roo_transceivers::BoundSensor bound_sensor_;
 };
 
 }  // namespace roo_control
