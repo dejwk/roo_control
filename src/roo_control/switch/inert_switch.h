@@ -31,12 +31,18 @@ class InertSwitch : public Switch<StateT> {
   virtual ~InertSwitch() = default;
 
   // Returns the actual state the switch is currently at.
-  getState(State& result) const override { return actuator_.getState(result); }
+  bool getState(State& result) const override {
+    return actuator_.getState(result);
+  }
 
   // Returns the state that the switch has been requested to take. The actual
   // state may lag behind due to inertia.
-  State getIntendedState() const {
-    return initialized_ ? intended_state_ : getState();
+  bool getIntendedState(State& state) const {
+    if (initialized_) {
+      state = intended_state_;
+      return true;
+    }
+    return getState(state);
   }
 
   // Sets the intended state of the switch. If the switch already is in that
@@ -54,7 +60,8 @@ class InertSwitch : public Switch<StateT> {
     if (initialized_ && intended_state_ == state) return true;
     intended_state_ = state;
     initialized_ = true;
-    if (getState() == intended_state_) {
+    State current_state;
+    if (getState(current_state) && current_state == intended_state_) {
       stateChanged();
       return true;
     }
@@ -106,7 +113,11 @@ class InertSwitch : public Switch<StateT> {
   // Called by the scheduler to execute the deferred state change.
   void deferredSet() {
     deferred_set_pending_ = false;
-    if (actuator_.getState() == intended_state_) return;
+    State current_state;
+    if (actuator_.getState(current_state) && current_state == intended_state_) {
+      // The state is already as intended.
+      return;
+    }
     if (set()) {
       stateChanged();
     }
