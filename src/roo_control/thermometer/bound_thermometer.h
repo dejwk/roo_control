@@ -8,7 +8,7 @@ namespace roo_control {
 class BoundThermometer : public Thermometer {
  public:
   BoundThermometer(roo_transceivers::Universe& universe,
-                   const roo_transceivers::SensorBinding& binding)
+                   const roo_transceivers::SensorBinding* binding)
       : bound_sensor_(universe, binding) {}
 
   Reading readTemperature() const override {
