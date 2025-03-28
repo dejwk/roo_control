@@ -35,9 +35,9 @@
         "dejwk/roo_logging": ">=1.0.4",
         "dejwk/roo_collections": ">=1.1.6",
         "dejwk/roo_prefs": ">=1.0.3",
-        "dejwk/roo_scheduler": ">=2.0.1",
+        "dejwk/roo_quantity": "^1.0.0",
+        "dejwk/roo_scheduler": "^2.0.2",
         "dejwk/roo_temperature": ">0",
-        "dejwk/roo_time": ">0",
-        "dejwk/roo_transceivers": ">=0"
+        "dejwk/roo_time": ">0"
     }
 }
