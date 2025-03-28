@@ -15,6 +15,7 @@ class PushButton : public BinarySelector {
              BinaryLogicalState idle_state = BINARY_STATE_HIGH);
 
   bool getState(BinaryLogicalState& result) const override {
+    if (!has_state_) return false;
     result = state_;
     return true;
   }

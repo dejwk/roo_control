@@ -16,9 +16,8 @@ PushButton::PushButton(BinarySelector& selector, BinaryLogicalState idle_state)
       last_state_change_time_(Uptime::Now()),
       prev_state_change_time_(last_state_change_time_),
       last_click_time_(last_state_change_time_),
-      is_pressed_(state_ != idle_state) {
-  has_state_ = selector_.getState(state_);
-}
+      is_pressed_(false),
+      has_state_(false) {}
 
 void PushButton::tick() {
   Uptime now = Uptime::Now();
@@ -31,6 +30,7 @@ void PushButton::tick() {
       onLongPress();
       is_pressed_ = false;
     }
+    has_state_ = true;
     return;
   }
   prev_state_change_time_ = last_state_change_time_;
@@ -51,6 +51,7 @@ void PushButton::tick() {
       is_pressed_ = false;
     }
   }
+  has_state_ = true;
 }
 
 }  // namespace roo_control
