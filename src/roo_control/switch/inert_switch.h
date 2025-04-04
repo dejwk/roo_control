@@ -11,6 +11,15 @@ roo_time::Interval DefaultBackoff(int retry_count);
 // Switch that adds intertia between state changes, on top of a 'raw' underlying
 // switch, called an 'actuator'. Useful to counter-act bouncing that could
 // damage physical relays.
+//
+// This switch provides some degree of fault tolerance: as long as the actuator
+// reports false from setState(), the inert switch will keep retrying calling
+// it. (You can specify a retry policy for doing so; the default policy is a
+// randomized exponential backoff). However, when the actuatore reports true
+// from setState(), inert switch trusts it to enforce the setting.
+//
+// If you need stronger fault tolerance, e.g. when the switch is remotely
+// controlled, consider using a FaultTolerantSwitch.
 template <typename StateT>
 class InertSwitch : public Switch<StateT> {
  public:
@@ -36,35 +45,36 @@ class InertSwitch : public Switch<StateT> {
   }
 
   // Returns the state that the switch has been requested to take. The actual
-  // state may lag behind due to inertia.
+  // state may lag behind due to inertia. Returns false if the intended state
+  // has never been set yet.
   bool getIntendedState(State& state) const {
-    if (initialized_) {
-      state = intended_state_;
-      return true;
-    }
-    return getState(state);
+    if (!initialized_) return false;
+    state = intended_state_;
+    return true;
   }
 
-  // Sets the intended state of the switch. If the switch already is in that
-  // state, returns immediately. Otherwise, if the last state change was more
-  // ago than the `inertia` interval, the state is immediately changed.
-  // Otherwise, schedules the state change to occur after the `inertia` interval
-  // since the last change.
+  // Sets the intended state of the switch. If the intended state of the switch
+  // was already set to the same value, returns immediately. Otherwise, if the
+  // last state change was more ago than the `inertia` interval, the state
+  // change is immediately attempted by calling setState() on the actuator.
+  // Otherwise, the state change attempt is scheduled to occur after the
+  // `inertia` interval since the last change.
   //
-  // In case that setting the state fails, a retry is scheduled (with
-  // exponential backoff). The implementation will keep trying to set the actual
-  // state to the intended state until successful.
-  //
-  // This method always returns true.
+  // In case that setting the state fails, a retry is scheduled, according to
+  // the retry policy specified at creation time (by default, a randomized
+  // exponential backoff, truncated at 5s). The retries continue until
+  // `actuator.setState()` returns true.
   bool setState(State state) override {
-    if (initialized_ && intended_state_ == state) return true;
-    intended_state_ = state;
-    initialized_ = true;
-    State current_state;
-    if (getState(current_state) && current_state == intended_state_) {
-      stateChanged();
+    if (initialized_ && intended_state_ == state) {
       return true;
     }
+    intended_state_ = state;
+    initialized_ = true;
+    // Note: if the requested state is different than the current
+    // intended_state_, the actuator may be in the process of delivering the
+    // previous state change, and the observed state might not yet reflect it.
+    // Therefore, we never rely on the observed state and always call the
+    // actuator.
     roo_time::Uptime now = roo_time::Uptime::Now();
     roo_time::Uptime deferred_set_time = when_switched_ + inertia_;
     if (deferred_set_time <= now) {
@@ -74,7 +84,8 @@ class InertSwitch : public Switch<StateT> {
       // Unless already scheduled to update, schedule to update with delay.
       if (!deferred_set_pending_) {
         deferred_set_pending_ = true;
-        scheduler_.scheduleOn(&deferred_setter_, deferred_set_time);
+        scheduler_.scheduleOn(&deferred_setter_, deferred_set_time,
+                              roo_scheduler::PRIORITY_ELEVATED);
       }
     }
     stateChanged();
@@ -88,7 +99,7 @@ class InertSwitch : public Switch<StateT> {
   // Returns the time of last (actual) state change.
   roo_time::Uptime whenSwitched() const { return when_switched_; }
 
-  // Returns the intertia interval.
+  // Returns the inertia interval.
   roo_time::Interval intertia() const { return inertia_; }
 
  protected:
@@ -106,18 +117,14 @@ class InertSwitch : public Switch<StateT> {
     ++failure_count_;
     deferred_set_pending_ = true;
     roo_time::Interval delay = backoff_policy_(failure_count_);
-    scheduler_.scheduleAfter(&deferred_setter_, delay);
+    scheduler_.scheduleAfter(&deferred_setter_, delay,
+                             roo_scheduler::PRIORITY_ELEVATED);
     return false;
   }
 
   // Called by the scheduler to execute the deferred state change.
   void deferredSet() {
     deferred_set_pending_ = false;
-    State current_state;
-    if (actuator_.getState(current_state) && current_state == intended_state_) {
-      // The state is already as intended.
-      return;
-    }
     if (set()) {
       stateChanged();
     }
