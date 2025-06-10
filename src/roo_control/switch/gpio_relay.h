@@ -1,13 +1,17 @@
 #include <Arduino.h>
 
-#include "roo_control/switch.h"
+#include "roo_control/switch/switch.h"
 
 namespace roo_control {
 
 // Simple, raw, Arduino GPIO-pin-controlled relay switch.
 class GpioRelay : public BinarySwitch {
  public:
-  GpioRelay(uint8_t pin) : pin_(pin) { pinMode(pin_, OUTPUT); }
+  GpioRelay(uint8_t pin, BinaryLogicalState initial_state = BINARY_STATE_LOW)
+      : pin_(pin) {
+    pinMode(pin_, OUTPUT);
+    digitalWrite(pin_, initial_state);
+  }
 
   bool setState(BinaryLogicalState state) override {
     digitalWrite(pin_, state);
