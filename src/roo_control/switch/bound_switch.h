@@ -24,7 +24,7 @@ class BoundSwitch : public Switch<State> {
       result = (State)m.value();
       return true;
     }
-    LOG(ERROR) << "Unknown selector state " << bound_sensing_actuator_;
+    // LOG(ERROR) << "Unknown selector state " << bound_sensing_actuator_;
     return false;
   }
 
@@ -56,7 +56,7 @@ class BoundSwitch<BinaryLogicalState> : public Switch<BinaryLogicalState> {
       result = (BinaryLogicalState)((int)m.value());
       return true;
     }
-    LOG(ERROR) << "Unknown selector state " << bound_sensing_actuator_;
+    // LOG(ERROR) << "Unknown selector state " << bound_sensing_actuator_;
     return false;
   }
 
