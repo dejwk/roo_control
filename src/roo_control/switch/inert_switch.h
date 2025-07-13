@@ -104,7 +104,8 @@ class InertSwitch : public Switch<StateT> {
 
  protected:
   // Can be overridden to receive state change notifications. Triggers when
-  // either the intended or the actual state, or both, change.
+  // either the intended state changes, or setState() on the actuator succeeds
+  // (confirming update request of the actual state), or both.
   virtual void stateChanged() const {}
 
  private:
