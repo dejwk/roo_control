@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Arduino.h>
 
 #include "roo_control/switch/switch.h"
