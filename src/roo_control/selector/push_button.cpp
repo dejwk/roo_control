@@ -13,11 +13,11 @@ static constexpr Interval kDoubleClickDeadline = Millis(500);
 PushButton::PushButton(BinarySelector& selector, BinaryLogicalState idle_state)
     : selector_(selector),
       idle_state_(idle_state),
+      has_state_(false),
       last_state_change_time_(Uptime::Now()),
       prev_state_change_time_(last_state_change_time_),
       last_click_time_(last_state_change_time_),
-      is_pressed_(false),
-      has_state_(false) {}
+      is_pressed_(false) {}
 
 void PushButton::tick() {
   Uptime now = Uptime::Now();
