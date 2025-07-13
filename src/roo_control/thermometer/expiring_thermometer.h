@@ -13,7 +13,7 @@ class ExpiringThermometer : public Thermometer {
 
   ExpiringThermometer(const Thermometer *thermometer,
                       roo_time::Interval expiration)
-      : thermometer_(thermometer), expiration_(expiration) {}
+      : thermometer_(thermometer), expiration_(expiration), cached_() {}
 
   void setExpiration(roo_time::Interval expiration) {
     expiration_ = expiration;
@@ -23,6 +23,12 @@ class ExpiringThermometer : public Thermometer {
 
   Reading readTemperature() const override {
     Reading reading = thermometer_->readTemperature();
+    if (reading.time > cached_.time && cached_.value.isUnknown()) {
+      cached_ = reading;
+    }
+    if (reading.value.isUnknown() && !cached_.value.isUnknown()) {
+      reading = cached_;
+    }
     if (reading.time + expiration_ < roo_time::Uptime::Now()) {
       reading.value = roo_quantity::UnknownTemperature();
     }
@@ -32,6 +38,7 @@ class ExpiringThermometer : public Thermometer {
  private:
   const Thermometer *thermometer_;
   roo_time::Interval expiration_;
+  mutable Reading cached_;
 };
 
 // Convenience function that reports the temperature reading of the specified
@@ -43,4 +50,4 @@ inline Thermometer::Reading ReadExpiringTemperature(
   return ExpiringThermometer(&t, expiration).readTemperature();
 }
 
-}
+}  // namespace roo_control
