@@ -1,6 +1,7 @@
 #pragma once
 
 #include "roo_logging.h"
+#include "roo_quantity.h"
 #include "roo_quantity/temperature.h"
 
 namespace roo_control {
