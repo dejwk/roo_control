@@ -9,7 +9,7 @@ template <typename State>
 class BoundSwitch : public Switch<State> {
  public:
   BoundSwitch(roo_transceivers::Universe& universe,
-                const roo_transceivers::ActuatorBinding* binding)
+              const roo_transceivers::ActuatorBinding* binding)
       : bound_sensing_actuator_(universe, binding) {}
 
   bool getState(State& result) const override {
@@ -18,9 +18,10 @@ class BoundSwitch : public Switch<State> {
       CHECK(m.quantity() == roo_transceivers_Quantity_kBinaryState ||
             m.quantity() == roo_transceivers_Quantity_kMultiState);
       if ((int)m.value() != m.value()) {
-          LOG(ERROR) << "Selector value is not an integer: " << m.value();
-          return false;
-        }
+        LOG_EVERY_T(ERROR, 1)
+            << "Selector value is not an integer: " << m.value();
+        return false;
+      }
       result = (State)m.value();
       return true;
     }
@@ -39,18 +40,22 @@ class BoundSwitch : public Switch<State> {
 template <>
 class BoundSwitch<BinaryLogicalState> : public Switch<BinaryLogicalState> {
  public:
-  BoundSwitch<BinaryLogicalState>(
-      roo_transceivers::Universe& universe,
-      const roo_transceivers::ActuatorBinding* binding)
+  BoundSwitch(roo_transceivers::Universe& universe,
+              const roo_transceivers::ActuatorBinding* binding)
       : bound_sensing_actuator_(universe, binding) {}
 
   bool getState(BinaryLogicalState& result) const override {
     roo_transceivers::Measurement m = bound_sensing_actuator_.read();
     if (m.isDefined()) {
-      CHECK(m.quantity() == roo_transceivers_Quantity_kBinaryState ||
-            m.quantity() == roo_transceivers_Quantity_kMultiState);
+      if (m.quantity() != roo_transceivers_Quantity_kBinaryState &&
+          m.quantity() != roo_transceivers_Quantity_kMultiState) {
+        LOG_EVERY_T(ERROR, 1)
+            << "Unexpected quantity when reading bound actuator: "
+            << m.quantity() << " " << m.value();
+        return false;
+      }
       if (m.value() != 0.0f && m.value() != 1.0f) {
-        LOG(ERROR) << "Selector value is invalid: " << m.value();
+        LOG_EVERY_T(ERROR, 1) << "Selector value is invalid: " << m.value();
         return false;
       }
       result = (BinaryLogicalState)((int)m.value());
