@@ -84,7 +84,7 @@ class InertSwitch : public Switch<StateT> {
       // Unless already scheduled to update, schedule to update with delay.
       if (!deferred_set_pending_) {
         deferred_set_pending_ = true;
-        scheduler_.scheduleOn(&deferred_setter_, deferred_set_time,
+        scheduler_.scheduleOn(deferred_set_time, deferred_setter_,
                               roo_scheduler::PRIORITY_ELEVATED);
       }
     }
@@ -118,8 +118,8 @@ class InertSwitch : public Switch<StateT> {
     ++failure_count_;
     deferred_set_pending_ = true;
     roo_time::Interval delay = backoff_policy_(failure_count_);
-    scheduler_.scheduleAfter(&deferred_setter_, delay,
-                             roo_scheduler::PRIORITY_ELEVATED);
+    scheduler_.scheduleAfter(
+        delay, deferred_setter_, roo_scheduler::PRIORITY_ELEVATED);
     return false;
   }
 
