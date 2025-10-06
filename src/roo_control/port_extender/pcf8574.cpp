@@ -2,7 +2,7 @@
 
 namespace roo_control {
 
-using roo_time::Interval;
+using roo_time::Duration;
 using roo_time::Millis;
 using roo_time::Uptime;
 

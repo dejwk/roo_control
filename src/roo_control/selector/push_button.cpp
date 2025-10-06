@@ -2,13 +2,13 @@
 
 namespace roo_control {
 
-using roo_time::Interval;
+using roo_time::Duration;
 using roo_time::Millis;
 using roo_time::Uptime;
 
-static constexpr Interval kDebounceInterval = Millis(20);
-static constexpr Interval kLongPressInterval = Millis(500);
-static constexpr Interval kDoubleClickDeadline = Millis(500);
+static constexpr Duration kDebounceInterval = Millis(20);
+static constexpr Duration kLongPressInterval = Millis(500);
+static constexpr Duration kDoubleClickDeadline = Millis(500);
 
 PushButton::PushButton(BinarySelector& selector, BinaryLogicalState idle_state)
     : selector_(selector),

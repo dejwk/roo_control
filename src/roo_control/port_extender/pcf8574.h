@@ -56,12 +56,12 @@ class Pcf8574 {
   // Returns the maximum allowed staleness of data read from the inputs. Useful
   // to reduce the amount of unneccessary repetitive I2C reads. Defaults to
   // 20ms.
-  roo_time::Interval getReadCacheDuration() const {
+  roo_time::Duration getReadCacheDuration() const {
     return last_read_cache_duration_;
   }
 
   // Sets the maximum allowed staleness of data read from the inputs.
-  void setReadCacheDuration(roo_time::Interval duration) {
+  void setReadCacheDuration(roo_time::Duration duration) {
     last_read_cache_duration_ = duration;
   }
 
@@ -113,7 +113,7 @@ class Pcf8574 {
   roo_time::Uptime last_read_time_;
 
   // Maximum staleness of values returned by read().
-  roo_time::Interval last_read_cache_duration_;
+  roo_time::Duration last_read_cache_duration_;
 };
 
 }  // namespace roo_control

@@ -6,7 +6,7 @@
 
 namespace roo_control {
 
-roo_time::Interval DefaultBackoff(int retry_count);
+roo_time::Duration DefaultBackoff(int retry_count);
 
 // Switch that adds intertia between state changes, on top of a 'raw' underlying
 // switch, called an 'actuator'. Useful to counter-act bouncing that could
@@ -26,7 +26,7 @@ class InertSwitch : public Switch<StateT> {
   using State = StateT;
 
   InertSwitch(roo_scheduler::Scheduler& scheduler, Switch<StateT>& actuator,
-              roo_time::Interval inertia = roo_time::Millis(500))
+              roo_time::Duration inertia = roo_time::Millis(500))
       : scheduler_(scheduler),
         actuator_(actuator),
         inertia_(inertia),
@@ -100,7 +100,7 @@ class InertSwitch : public Switch<StateT> {
   roo_time::Uptime whenSwitched() const { return when_switched_; }
 
   // Returns the inertia interval.
-  roo_time::Interval intertia() const { return inertia_; }
+  roo_time::Duration intertia() const { return inertia_; }
 
  protected:
   // Can be overridden to receive state change notifications. Triggers when
@@ -117,7 +117,7 @@ class InertSwitch : public Switch<StateT> {
     }
     ++failure_count_;
     deferred_set_pending_ = true;
-    roo_time::Interval delay = backoff_policy_(failure_count_);
+    roo_time::Duration delay = backoff_policy_(failure_count_);
     scheduler_.scheduleAfter(
         delay, deferred_setter_, roo_scheduler::PRIORITY_ELEVATED);
     return false;
@@ -139,10 +139,10 @@ class InertSwitch : public Switch<StateT> {
 
   // The minimum interval between state changes wa want to impose on the
   // actuator.
-  roo_time::Interval inertia_;
+  roo_time::Duration inertia_;
 
   // The retry policy to handle set failures on the actuator.
-  std::function<roo_time::Interval(int retry_count)> backoff_policy_;
+  std::function<roo_time::Duration(int retry_count)> backoff_policy_;
 
   // Helper to execute the scheduled deferred set.
   roo_scheduler::Task deferred_setter_;

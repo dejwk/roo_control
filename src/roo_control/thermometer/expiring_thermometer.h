@@ -12,14 +12,14 @@ class ExpiringThermometer : public Thermometer {
       : ExpiringThermometer(thermometer, roo_time::Hours(10000000)) {}
 
   ExpiringThermometer(const Thermometer *thermometer,
-                      roo_time::Interval expiration)
+                      roo_time::Duration expiration)
       : thermometer_(thermometer), expiration_(expiration), cached_() {}
 
-  void setExpiration(roo_time::Interval expiration) {
+  void setExpiration(roo_time::Duration expiration) {
     expiration_ = expiration;
   }
 
-  roo_time::Interval expiration() const { return expiration_; }
+  roo_time::Duration expiration() const { return expiration_; }
 
   Reading readTemperature() const override {
     Reading reading = thermometer_->readTemperature();
@@ -37,7 +37,7 @@ class ExpiringThermometer : public Thermometer {
 
  private:
   const Thermometer *thermometer_;
-  roo_time::Interval expiration_;
+  roo_time::Duration expiration_;
   mutable Reading cached_;
 };
 
@@ -46,7 +46,7 @@ class ExpiringThermometer : public Thermometer {
 // Unknown otherwise. Use this function if stale thermometer readings (e.g. due
 // to thermometers disconnected from the bus) shouldn't be used.
 inline Thermometer::Reading ReadExpiringTemperature(
-    const Thermometer &t, roo_time::Interval expiration) {
+    const Thermometer &t, roo_time::Duration expiration) {
   return ExpiringThermometer(&t, expiration).readTemperature();
 }
 

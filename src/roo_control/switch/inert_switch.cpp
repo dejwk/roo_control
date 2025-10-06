@@ -2,7 +2,7 @@
 
 namespace roo_control {
 
-roo_time::Interval DefaultBackoff(int retry_count) {
+roo_time::Duration DefaultBackoff(int retry_count) {
   float min_delay_us = 1000.0f;     // 1 ms
   float max_delay_us = 5000000.0f;  // 5 s
   float delay = pow(1.33, retry_count) * min_delay_us;
