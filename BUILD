@@ -12,14 +12,10 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//lib/roo_collections",
-        "//lib/roo_logging",
-        "//lib/roo_onewire",
-        "//lib/roo_prefs",
-        "//lib/roo_scheduler",
-        "//lib/roo_transceivers",
-        "//roo_testing:arduino",
-        "//roo_testing/frameworks/arduino-esp32-2.0.4/libraries/Wire",
-        "@nanopb//:nanopb"
+        "@roo_logging",
+        "@roo_quantity",
+        "@roo_scheduler",
+        "@roo_testing//:arduino",
+        "@roo_testing//roo_testing/frameworks/arduino-esp32-2.0.4/libraries/Wire",
     ],
 )
