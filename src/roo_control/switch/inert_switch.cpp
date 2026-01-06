@@ -1,5 +1,7 @@
 #include "roo_control/switch/inert_switch.h"
 
+#include <cmath>
+
 namespace roo_control {
 
 roo_time::Duration DefaultBackoff(int retry_count) {
