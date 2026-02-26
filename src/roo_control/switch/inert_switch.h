@@ -6,20 +6,21 @@
 
 namespace roo_control {
 
+/// Default backoff policy for InertSwitch retries.
 roo_time::Duration DefaultBackoff(int retry_count);
 
-// Switch that adds intertia between state changes, on top of a 'raw' underlying
-// switch, called an 'actuator'. Useful to counter-act bouncing that could
-// damage physical relays.
-//
-// This switch provides some degree of fault tolerance: as long as the actuator
-// reports false from setState(), the inert switch will keep retrying calling
-// it. (You can specify a retry policy for doing so; the default policy is a
-// randomized exponential backoff). However, when the actuatore reports true
-// from setState(), inert switch trusts it to enforce the setting.
-//
-// If you need stronger fault tolerance, e.g. when the switch is remotely
-// controlled, consider using a FaultTolerantSwitch.
+/// Switch that adds inertia between state changes on top of a raw actuator.
+///
+/// Useful to counter-act bouncing that could damage physical relays.
+///
+/// This switch provides some degree of fault tolerance: as long as the actuator
+/// reports false from setState(), the inert switch will keep retrying calling
+/// it. (You can specify a retry policy for doing so; the default policy is a
+/// randomized exponential backoff). However, when the actuator reports true
+/// from setState(), the inert switch trusts it to enforce the setting.
+///
+/// If you need stronger fault tolerance, e.g. when the switch is remotely
+/// controlled, consider using a FaultTolerantSwitch.
 template <typename StateT>
 class InertSwitch : public Switch<StateT> {
  public:
@@ -39,31 +40,33 @@ class InertSwitch : public Switch<StateT> {
 
   virtual ~InertSwitch() = default;
 
-  // Returns the actual state the switch is currently at.
+  /// Returns the actual state the switch is currently at.
   bool getState(State& result) const override {
     return actuator_.getState(result);
   }
 
-  // Returns the state that the switch has been requested to take. The actual
-  // state may lag behind due to inertia. Returns false if the intended state
-  // has never been set yet.
+  /// Returns the state that the switch has been requested to take.
+  ///
+  /// The actual state may lag behind due to inertia. Returns false if the
+  /// intended state has never been set yet.
   bool getIntendedState(State& state) const {
     if (!initialized_) return false;
     state = intended_state_;
     return true;
   }
 
-  // Sets the intended state of the switch. If the intended state of the switch
-  // was already set to the same value, returns immediately. Otherwise, if the
-  // last state change was more ago than the `inertia` interval, the state
-  // change is immediately attempted by calling setState() on the actuator.
-  // Otherwise, the state change attempt is scheduled to occur after the
-  // `inertia` interval since the last change.
-  //
-  // In case that setting the state fails, a retry is scheduled, according to
-  // the retry policy specified at creation time (by default, a randomized
-  // exponential backoff, truncated at 5s). The retries continue until
-  // `actuator.setState()` returns true.
+  /// Sets the intended state of the switch.
+  ///
+  /// If the intended state of the switch was already set to the same value,
+  /// returns immediately. Otherwise, if the last state change was more ago
+  /// than the `inertia` interval, the state change is immediately attempted by
+  /// calling setState() on the actuator. Otherwise, the state change attempt is
+  /// scheduled to occur after the `inertia` interval since the last change.
+  ///
+  /// In case that setting the state fails, a retry is scheduled, according to
+  /// the retry policy specified at creation time (by default, a randomized
+  /// exponential backoff, truncated at 5s). The retries continue until
+  /// `actuator.setState()` returns true.
   bool setState(State state) override {
     if (initialized_ && intended_state_ == state) {
       return true;
@@ -92,20 +95,21 @@ class InertSwitch : public Switch<StateT> {
     return true;
   }
 
-  // Returns true if the intended and the actual state of the switch is
-  // currently inconsistent, with deferred update pending.
+  /// Returns true if a deferred update is pending.
   bool hasPendingChange() const { return deferred_set_pending_; }
 
-  // Returns the time of last (actual) state change.
+  /// Returns the time of last actual state change.
   roo_time::Uptime whenSwitched() const { return when_switched_; }
 
-  // Returns the inertia interval.
+  /// Returns the inertia interval.
   roo_time::Duration intertia() const { return inertia_; }
 
  protected:
-  // Can be overridden to receive state change notifications. Triggers when
-  // either the intended state changes, or setState() on the actuator succeeds
-  // (confirming update request of the actual state), or both.
+  /// Can be overridden to receive state change notifications.
+  ///
+  /// Triggers when either the intended state changes, or setState() on the
+  /// actuator succeeds (confirming update request of the actual state), or
+  /// both.
   virtual void stateChanged() const {}
 
  private:
@@ -118,8 +122,8 @@ class InertSwitch : public Switch<StateT> {
     ++failure_count_;
     deferred_set_pending_ = true;
     roo_time::Duration delay = backoff_policy_(failure_count_);
-    scheduler_.scheduleAfter(
-        delay, deferred_setter_, roo_scheduler::PRIORITY_ELEVATED);
+    scheduler_.scheduleAfter(delay, deferred_setter_,
+                             roo_scheduler::PRIORITY_ELEVATED);
     return false;
   }
 
@@ -131,40 +135,38 @@ class InertSwitch : public Switch<StateT> {
     }
   }
 
-  // Used to schedule deferred state updates.
+  /// Used to schedule deferred state updates.
   roo_scheduler::Scheduler& scheduler_;
 
-  // The underlying switch that we're driving.
+  /// The underlying switch that we're driving.
   Switch<State>& actuator_;
 
-  // The minimum interval between state changes wa want to impose on the
-  // actuator.
+  /// The minimum interval between state changes to impose on the actuator.
   roo_time::Duration inertia_;
 
-  // The retry policy to handle set failures on the actuator.
+  /// The retry policy to handle set failures on the actuator.
   std::function<roo_time::Duration(int retry_count)> backoff_policy_;
 
-  // Helper to execute the scheduled deferred set.
+  /// Helper to execute the scheduled deferred set.
   roo_scheduler::Task deferred_setter_;
 
-  // Whether there is a deferred set scheduled (or, equivalently, when the
-  // intended state is different than the actual state).
+  /// Whether a deferred set is scheduled.
   bool deferred_set_pending_;
 
-  // True when the intended state has been set at least once.
+  /// True when the intended state has been set at least once.
   bool initialized_;
 
-  // The intended state of the switch.
+  /// The intended state of the switch.
   State intended_state_;
 
-  // The time when the actual state has most recently changed.
+  /// The time when the actual state has most recently changed.
   roo_time::Uptime when_switched_;
 
-  // How many failures actuator_.setState() has experienced since the last
-  // succesful state reconcillation.
+  /// Failures since the last successful state reconciliation.
   int failure_count_;
 };
 
+/// Convenience alias for a binary inert switch.
 using InertBinarySwitch = InertSwitch<BinaryLogicalState>;
 
 }  // namespace roo_control

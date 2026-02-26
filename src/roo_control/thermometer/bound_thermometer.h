@@ -5,6 +5,7 @@
 
 namespace roo_control {
 
+/// Thermometer backed by a bound sensor from roo_transceivers.
 class BoundThermometer : public Thermometer {
  public:
   BoundThermometer(roo_transceivers::Universe& universe,

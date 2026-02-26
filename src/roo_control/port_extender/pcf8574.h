@@ -6,20 +6,23 @@
 
 namespace roo_control {
 
-// PCF8574 (https://www.ti.com/lit/ds/symlink/pcf8574.pdf) is an I2C-controlled
-// 8 port extender. Each port can be used as digital input, digital output, or
-// quasi-bidirectional.
-//
-// To use a given port as output, simply drive the corresponding bit from the
-// extender, and read it from the slave. See the datasheet, above, for details.
-//
-// To use a given port as input, set the corresponding bit to HIGH (which is the
-// initial value), and then use the slave to drive the line to VCC or GND.
+/// PCF8574 I2C-controlled 8-bit port extender.
+///
+/// Datasheet: https://www.ti.com/lit/ds/symlink/pcf8574.pdf
+///
+/// Each port can be used as digital input, digital output, or
+/// quasi-bidirectional.
+///
+/// To use a given port as output, drive the corresponding bit from the
+/// extender, and read it from the slave. See the datasheet for details.
+///
+/// To use a given port as input, set the corresponding bit to HIGH (the
+/// initial value), and then use the slave to drive the line to VCC or GND.
 class Pcf8574 {
  public:
-  // Represents a quasi-bidirectional port. Can be used as borth input and
-  // output.
-  // If your port is output-only, prefer `OutputPort` instead.
+  /// Quasi-bidirectional port usable as both input and output.
+  ///
+  /// If your port is output-only, prefer `OutputPort` instead.
   class Port : public BinarySwitch {
    public:
     Port(Pcf8574& extender, uint8_t port);
@@ -32,11 +35,11 @@ class Pcf8574 {
     const uint8_t port_;
   };
 
-  // Represents an output-only port. Reading the state of the port (by calling
-  // getState()) always returns the last known set value, and never has to
-  // communicate with the extender.
-  //
-  // Prefer this to `Port` for output-only ports.
+  /// Output-only port.
+  ///
+  /// Reading the state (getState()) returns the last set value without
+  /// communicating with the extender. Prefer this to `Port` for output-only
+  /// ports.
   class OutputPort : public BinarySwitch {
    public:
     OutputPort(Pcf8574& extender, uint8_t port);
@@ -49,50 +52,51 @@ class Pcf8574 {
     const uint8_t port_;
   };
 
-  // Creates the extender connected to the specified two-wire bus, and using the
-  // specified I2C address.
+  /// Creates the extender on the specified TwoWire bus and I2C address.
   Pcf8574(TwoWire& wire, uint8_t addr);
 
-  // Returns the maximum allowed staleness of data read from the inputs. Useful
-  // to reduce the amount of unneccessary repetitive I2C reads. Defaults to
-  // 20ms.
+  /// Returns the maximum allowed staleness of cached reads.
+  ///
+  /// Useful to reduce unnecessary repetitive I2C reads. Defaults to 20 ms.
   roo_time::Duration getReadCacheDuration() const {
     return last_read_cache_duration_;
   }
 
-  // Sets the maximum allowed staleness of data read from the inputs.
+  /// Sets the maximum allowed staleness of cached reads.
   void setReadCacheDuration(roo_time::Duration duration) {
     last_read_cache_duration_ = duration;
   }
 
-  // Reads, caches, and returns the actual levels of all ports. If called within
-  // the 'read cache duration' interval from the last read, may return cached
-  // results. Returns false on a communication failure.
+  /// Reads, caches, and returns levels of all ports.
+  ///
+  /// If called within the read-cache interval, may return cached results.
+  /// Returns false on a communication failure.
   bool read(uint8_t& data);
 
-  // Writes the levels of all ports. For ports used as input, the corresponding
-  // bits should be set HIGH, in order to continue allowing the slave to drive
-  // the actual line level. Returns false on a communication failure.
+  /// Writes the levels of all ports.
+  ///
+  /// For input ports, the corresponding bits should be HIGH to allow the slave
+  /// to keep driving the actual line level. Returns false on failure.
   bool write(uint8_t data);
 
-  // Returns the byte that was the most recently read. If the data was never
-  // read, returns 0xFF.
+  /// Returns the most recently read byte, or 0xFF if never read.
   uint8_t last_read() const { return last_read_; }
 
-  // Returns the byte that was the most recently written. If the data was never
-  // written, returnx 0xFF.
+  /// Returns the most recently written byte, or 0xFF if never written.
   uint8_t last_written() const { return last_written_; }
 
-  // Reads the level of the specified port. For ports used as output, the value
-  // will generally reflect what was last written, but the value is always actually read
-  // from the extender. On a communication failure, returns the last known
-  // state.
+  /// Reads the level of the specified port.
+  ///
+  /// For output ports, the value generally reflects what was last written, but
+  /// it is always read from the extender. On failure, returns the last known
+  /// state.
   BinaryLogicalState readPort(uint8_t port);
 
-  // Writes the level of the specified output port. Returns false on a
-  // communication failure. For input ports, it is OK to write HIGH - that will
-  // allow the slave to continue driving the level actaully seen by readPort.
-  // Writing LOW will force the LOW state.
+  /// Writes the level of the specified port.
+  ///
+  /// Returns false on a communication failure. For input ports, it is OK to
+  /// write HIGH to allow the slave to keep driving the level seen by readPort.
+  /// Writing LOW will force the LOW state.
   bool writePort(uint8_t port, BinaryLogicalState state);
 
  private:

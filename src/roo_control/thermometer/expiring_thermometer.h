@@ -4,8 +4,9 @@
 
 namespace roo_control {
 
-// Reports readings of another thermometer, if they are fresher than a specified
-// expiration threshold. Otherwise, reports Unknown.
+/// Reports readings of another thermometer if fresher than an expiration.
+///
+/// Otherwise, reports Unknown.
 class ExpiringThermometer : public Thermometer {
  public:
   ExpiringThermometer(const Thermometer *thermometer)
@@ -41,10 +42,11 @@ class ExpiringThermometer : public Thermometer {
   mutable Reading cached_;
 };
 
-// Convenience function that reports the temperature reading of the specified
-// thermometer if it is fresher than the specified expiration threshold, and
-// Unknown otherwise. Use this function if stale thermometer readings (e.g. due
-// to thermometers disconnected from the bus) shouldn't be used.
+/// Convenience function for expiring thermometer readings.
+///
+/// Returns the temperature if it is fresher than the expiration threshold, and
+/// Unknown otherwise. Useful when stale thermometer readings (e.g. due to
+/// disconnected devices) should not be used.
 inline Thermometer::Reading ReadExpiringTemperature(
     const Thermometer &t, roo_time::Duration expiration) {
   return ExpiringThermometer(&t, expiration).readTemperature();

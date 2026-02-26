@@ -4,7 +4,7 @@
 
 namespace roo_control {
 
-// Simple, raw, Arduino GPIO-pin-connected logical sensor.
+/// Simple, raw, Arduino GPIO-pin-connected logical sensor.
 class GpioConnector : public BinarySelector {
  public:
   GpioConnector(uint8_t pin, int pull_mode = 0) : pin_(pin) {

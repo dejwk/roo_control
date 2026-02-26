@@ -5,6 +5,7 @@
 
 namespace roo_control {
 
+/// Switch backed by a bound sensing actuator from roo_transceivers.
 template <typename State>
 class BoundSwitch : public Switch<State> {
  public:
@@ -37,6 +38,7 @@ class BoundSwitch : public Switch<State> {
   roo_transceivers::BoundSensingActuator bound_sensing_actuator_;
 };
 
+/// BinaryLogicalState specialization with stricter value checks.
 template <>
 class BoundSwitch<BinaryLogicalState> : public Switch<BinaryLogicalState> {
  public:
@@ -73,6 +75,7 @@ class BoundSwitch<BinaryLogicalState> : public Switch<BinaryLogicalState> {
   roo_transceivers::BoundSensingActuator bound_sensing_actuator_;
 };
 
+/// Convenience alias for a bound binary switch.
 using BoundBinarySwitch = BoundSwitch<BinaryLogicalState>;
 
 }  // namespace roo_control

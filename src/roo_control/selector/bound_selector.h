@@ -5,6 +5,7 @@
 
 namespace roo_control {
 
+/// Selector backed by a bound sensor from roo_transceivers.
 template <typename State>
 class BoundSelector : public Selector<State> {
  public:
@@ -32,6 +33,7 @@ class BoundSelector : public Selector<State> {
   roo_transceivers::BoundSensor bound_sensor_;
 };
 
+/// BinaryLogicalState specialization with stricter value checks.
 template <>
 class BoundSelector<BinaryLogicalState> : public Selector<BinaryLogicalState> {
  public:
@@ -60,6 +62,7 @@ class BoundSelector<BinaryLogicalState> : public Selector<BinaryLogicalState> {
   roo_transceivers::BoundSensor bound_sensor_;
 };
 
+/// Convenience alias for a bound binary selector.
 using BoundBinarySelector = BoundSelector<BinaryLogicalState>;
 
 }  // namespace roo_control

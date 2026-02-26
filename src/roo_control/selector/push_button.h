@@ -5,10 +5,10 @@
 
 namespace roo_control {
 
-// Represents a human-pressable monentary button.
-//
-// This class implements debouncing and provides simple form of 'gesture'
-// detection.
+/// Represents a human-pressable momentary button.
+///
+/// This class implements debouncing and provides a simple form of gesture
+/// detection.
 class PushButton : public BinarySelector {
  public:
   PushButton(BinarySelector& selector,
@@ -20,13 +20,14 @@ class PushButton : public BinarySelector {
     return true;
   }
 
-  // Needs to be called periodically, and frequently (every 5-10 ms).
+  /// Needs to be called periodically (every 5-10 ms).
   void tick();
 
  protected:
-  // Overridable methods below are called from tick(). If you call tick() from a
-  // time-sensitive context, you may want to hand off the events to a queue in
-  // the implementation of these methods.
+  /// Hooks called from tick().
+  ///
+  /// If you call tick() from a time-sensitive context, you may want to hand
+  /// off the events to a queue in the implementation of these methods.
 
   virtual void onDown() {}
   virtual void onUp() {}
