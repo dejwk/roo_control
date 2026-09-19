@@ -1,3 +1,12 @@
+# roo_control 1.2.7
+
+- Updated dependencies to `roo_logging` 1.5.10, `roo_quantity` 1.1.10, and `roo_scheduler` 2.2.0, including PlatformIO minimum versions.
+- Updated Bazel dependencies to `rules_cc` 0.2.25, `googletest` 1.18.0.bcr.1, and `roo_testing` 2.1.2.
+- Updated the shared CI workflow to `roo_testing` 2.1.2.
+- Added consolidated release notes for previous versions.
+
+---
+
 # [roo_control 1.2.6](https://github.com/dejwk/roo_control/releases/tag/1.2.6)
 
 Published 2026-08-29.
