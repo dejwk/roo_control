@@ -1,3 +1,11 @@
+# roo_control 1.2.8
+
+- Upgrade dependencies: `roo_logging` to 1.5.11, `roo_quantity` to 1.1.11, and `roo_scheduler` to 2.2.1; update PlatformIO minimum versions accordingly.
+- Upgrade `roo_testing` to 2.3.0.
+- Improve ESP32 test tooling with an ESP-IDF profile, automatic profile selection for ESP-IDF example runs, and a helper to test both Arduino and ESP-IDF profiles.
+
+---
+
 # roo_control 1.2.7
 
 - Updated dependencies to `roo_logging` 1.5.10, `roo_quantity` 1.1.10, and `roo_scheduler` 2.2.0, including PlatformIO minimum versions.
