@@ -276,7 +276,7 @@ using namespace roo_time;
 static constexpr uint8_t kButtonPin = 4;
 static constexpr uint8_t kRelayPin = 5;
 
-Scheduler scheduler;
+SchedulingService scheduler;
 GpioConnector raw_button(kButtonPin, INPUT_PULLUP);
 GpioRelay raw_relay(kRelayPin, BINARY_STATE_LOW);
 InertBinarySwitch relay(scheduler, raw_relay, Millis(500));
@@ -610,7 +610,7 @@ Check these first:
 
 Make sure the scheduler is actually running. Calling `setState()` on an
 `InertSwitch` is not enough by itself; deferred work runs only while
-`roo_scheduler::Scheduler` is being serviced.
+`roo_scheduler::SchedulingService` is being serviced.
 
 #### A PCF8574 input looks wrong
 

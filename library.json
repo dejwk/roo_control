@@ -32,6 +32,6 @@
     "dependencies": {
         "dejwk/roo_logging": ">=1.5.11",
         "dejwk/roo_quantity": ">=1.1.11",
-        "dejwk/roo_scheduler": ">=2.2.1"
+        "dejwk/roo_scheduler": ">=2.3.0"
     }
 }
