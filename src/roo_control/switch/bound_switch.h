@@ -16,8 +16,8 @@ class BoundSwitch : public Switch<State> {
   bool getState(State& result) const override {
     roo_transceivers::Measurement m = bound_sensing_actuator_.read();
     if (m.isDefined()) {
-      CHECK(m.quantity() == roo_transceivers_Quantity_kBinaryState ||
-            m.quantity() == roo_transceivers_Quantity_kMultiState);
+      CHECK(m.quantity() == roo_transceivers::Quantity::kBinaryState ||
+            m.quantity() == roo_transceivers::Quantity::kMultiState);
       if ((int)m.value() != m.value()) {
         LOG_EVERY_T(ERROR, 1)
             << "Selector value is not an integer: " << m.value();
@@ -49,11 +49,11 @@ class BoundSwitch<BinaryLogicalState> : public Switch<BinaryLogicalState> {
   bool getState(BinaryLogicalState& result) const override {
     roo_transceivers::Measurement m = bound_sensing_actuator_.read();
     if (m.isDefined()) {
-      if (m.quantity() != roo_transceivers_Quantity_kBinaryState &&
-          m.quantity() != roo_transceivers_Quantity_kMultiState) {
+      if (m.quantity() != roo_transceivers::Quantity::kBinaryState &&
+          m.quantity() != roo_transceivers::Quantity::kMultiState) {
         LOG_EVERY_T(ERROR, 1)
             << "Unexpected quantity when reading bound actuator: "
-            << m.quantity() << " " << m.value();
+            << static_cast<int32_t>(m.quantity()) << " " << m.value();
         return false;
       }
       if (m.value() != 0.0f && m.value() != 1.0f) {

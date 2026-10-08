@@ -15,7 +15,7 @@ class BoundThermometer : public Thermometer {
   Reading readTemperature() const override {
     roo_transceivers::Measurement m = bound_sensor_.read();
     if (m.isDefined()) {
-      CHECK_EQ(roo_transceivers_Quantity_kTemperature, m.quantity());
+      CHECK(m.quantity() == roo_transceivers::Quantity::kTemperature);
     }
     return Reading{.value = roo_quantity::TemperatureDegCelcius(m.value()),
                    .time = m.time()};
