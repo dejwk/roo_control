@@ -1,3 +1,11 @@
+# roo_control 1.2.10
+
+- Fix `BoundSwitch` and `BoundThermometer` compilation with `roo_transceivers` 1.3.0 by adopting its scoped `Quantity` enum.
+- Add regression tests for bound switch validation and thermometer readings.
+- Add `roo_transceivers` 1.3.0 to Bazel dependencies and upgrade `roo_testing` to 2.3.1.
+
+---
+
 # roo_control 1.2.9
 
 - Upgrade `roo_scheduler` to 2.3.0 in Bazel and raise the PlatformIO minimum version accordingly.
