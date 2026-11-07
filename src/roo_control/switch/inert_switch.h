@@ -26,8 +26,7 @@ class InertSwitch : public Switch<StateT> {
  public:
   using State = StateT;
 
-  InertSwitch(roo_scheduler::SchedulerClient& scheduler,
-              Switch<StateT>& actuator,
+  InertSwitch(roo_scheduler::Scheduler& scheduler, Switch<StateT>& actuator,
               roo_time::Duration inertia = roo_time::Millis(500))
       : scheduler_(scheduler),
         actuator_(actuator),
@@ -137,7 +136,7 @@ class InertSwitch : public Switch<StateT> {
   }
 
   /// Used to schedule deferred state updates.
-  roo_scheduler::SchedulerClient& scheduler_;
+  roo_scheduler::Scheduler& scheduler_;
 
   /// The underlying switch that we're driving.
   Switch<State>& actuator_;

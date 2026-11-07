@@ -9,7 +9,7 @@
 # roo_control 1.2.9
 
 - Upgrade `roo_scheduler` to 2.3.0 in Bazel and raise the PlatformIO minimum version accordingly.
-- Update `InertSwitch` to accept `roo_scheduler::SchedulerClient&` instead of `Scheduler&`.
+- Update `InertSwitch` to accept the restricted `roo_scheduler::Scheduler&` interface.
 - Update the programming guide’s example and troubleshooting guidance to use `SchedulingService`.
 
 ---
