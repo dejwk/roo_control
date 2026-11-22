@@ -1,5 +1,8 @@
+#include <limits>
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "roo_control/selector/bound_selector.h"
 #include "roo_control/switch/bound_switch.h"
 #include "roo_control/thermometer/bound_thermometer.h"
 
@@ -94,6 +97,49 @@ TEST_F(BoundDevicesTest, IntegerMultiStateReadings) {
   setReading(Quantity::kMultiState, 1.5f);
   EXPECT_FALSE(sw.getState(state));
   EXPECT_EQ(3, state);
+}
+
+// Verifies integer selectors read both supported quantities through a binding.
+TEST_F(BoundDevicesTest, IntegerSelectorReadings) {
+  BoundSelector<int> selector(universe_, sensor_);
+  int state = 0;
+  setReading(Quantity::kMultiState, 3);
+  ASSERT_TRUE(selector.getState(state));
+  EXPECT_EQ(3, state);
+  setReading(Quantity::kBinaryState, 1);
+  ASSERT_TRUE(selector.getState(state));
+  EXPECT_EQ(1, state);
+}
+
+// Verifies rejection of values that cannot be converted to an integer state.
+TEST_F(BoundDevicesTest, RejectsInvalidIntegerSelectorReadings) {
+  BoundSelector<int> selector(universe_, sensor_);
+  int state = 3;
+  setReading(Quantity::kMultiState, 1.5f);
+  EXPECT_FALSE(selector.getState(state));
+  EXPECT_EQ(3, state);
+  setReading(Quantity::kMultiState, std::numeric_limits<float>::max());
+  EXPECT_FALSE(selector.getState(state));
+  EXPECT_EQ(3, state);
+}
+
+// Verifies binary selectors accept only 0 and 1 and keep the output on failure.
+TEST_F(BoundDevicesTest, BinarySelectorReadings) {
+  BoundBinarySelector selector(universe_, sensor_);
+  BinaryLogicalState state = BINARY_STATE_LOW;
+  setReading(Quantity::kBinaryState, 1);
+  ASSERT_TRUE(selector.getState(state));
+  EXPECT_EQ(BINARY_STATE_HIGH, state);
+  setReading(Quantity::kMultiState, 0);
+  ASSERT_TRUE(selector.getState(state));
+  EXPECT_EQ(BINARY_STATE_LOW, state);
+  setReading(Quantity::kMultiState, 2);
+  EXPECT_FALSE(selector.getState(state));
+  EXPECT_EQ(BINARY_STATE_LOW, state);
+
+  sensor_.unbind();
+  EXPECT_FALSE(selector.getState(state));
+  EXPECT_EQ(BINARY_STATE_LOW, state);
 }
 
 // Verifies a current protocol temperature retains its value and measurement

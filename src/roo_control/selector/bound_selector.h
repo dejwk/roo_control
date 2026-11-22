@@ -1,5 +1,7 @@
 #pragma once
 
+#include <climits>
+
 #include "roo_control/selector/selector.h"
 #include "roo_transceivers.h"
 #include "roo_transceivers/binding/binding.h"
@@ -10,24 +12,29 @@ namespace roo_control {
 template <typename State>
 class BoundSelector : public Selector<State> {
  public:
+  /// Creates a selector that reads @p binding through @p universe.
+  /// Both must outlive this selector.
   BoundSelector(roo_transceivers::Universe& universe,
                 const roo_transceivers::SensorBinding& binding)
-      : bound_sensor_(universe, binding), state_() {}
+      : bound_sensor_(universe, &binding) {}
 
+  /// Reads an integer state, returning false for missing or invalid values.
   bool getState(State& result) const override {
-    Measurement m = bound_sensor_.read();
-    if (m.isDefined()) {
-      CHECK(m.quantity() == roo_control_Quantity_kBinaryState ||
-            m.quantity() == roo_control_Quantity_kMultiState);
-      if ((int)m.value()) != m.value() {
-          LOG(ERROR) << "Selector value is not an integer: " << m.value();
-          return false;
-        }
-      result = (State)m.value();
-      return true;
+    const roo_transceivers::Measurement reading = bound_sensor_.read();
+    if (!reading.isDefined()) {
+      LOG(ERROR) << "Unknown selector state " << bound_sensor_;
+      return false;
     }
-    LOG(ERROR) << "Unknown selector state " << bound_sensor_;
-    return false;
+    CHECK(reading.quantity() == roo_transceivers::Quantity::kBinaryState ||
+          reading.quantity() == roo_transceivers::Quantity::kMultiState);
+    const double value = reading.value();
+    if (value < INT_MIN || value > INT_MAX ||
+        static_cast<int>(value) != value) {
+      LOG(ERROR) << "Selector value is not a representable integer: " << value;
+      return false;
+    }
+    result = static_cast<State>(static_cast<int>(value));
+    return true;
   }
 
  private:
@@ -38,25 +45,28 @@ class BoundSelector : public Selector<State> {
 template <>
 class BoundSelector<BinaryLogicalState> : public Selector<BinaryLogicalState> {
  public:
-  BoundSelector<BinaryLogicalState>(
-      roo_transceivers::Universe& universe,
-      const roo_transceivers::SensorBinding& binding)
-      : bound_sensor_(universe, binding) {}
+  /// Creates a binary selector that reads @p binding through @p universe.
+  /// Both must outlive this selector.
+  BoundSelector(roo_transceivers::Universe& universe,
+                const roo_transceivers::SensorBinding& binding)
+      : bound_sensor_(universe, &binding) {}
 
+  /// Reads a binary state, returning false for missing or invalid values.
   bool getState(BinaryLogicalState& result) const override {
-    roo_transceivers::Measurement m = bound_sensor_.read();
-    if (m.isDefined()) {
-      CHECK(m.quantity() == roo_control_Quantity_kBinaryState ||
-            m.quantity() == roo_control_Quantity_kMultiState);
-      if (m.value() != 0.0f && m.value() != 1.0f) {
-        LOG(ERROR) << "Selector value is invalid: " << m.value();
-        return false;
-      }
-      result = (BinaryLogicalState)((int)m.value());
-      return true;
+    const roo_transceivers::Measurement reading = bound_sensor_.read();
+    if (!reading.isDefined()) {
+      LOG(ERROR) << "Unknown selector state " << bound_sensor_;
+      return false;
     }
-    LOG(ERROR) << "Unknown selector state " << bound_sensor_;
-    return false;
+    CHECK(reading.quantity() == roo_transceivers::Quantity::kBinaryState ||
+          reading.quantity() == roo_transceivers::Quantity::kMultiState);
+    const float value = reading.value();
+    if (value != 0.0f && value != 1.0f) {
+      LOG(ERROR) << "Selector value is invalid: " << value;
+      return false;
+    }
+    result = value == 0.0f ? BINARY_STATE_LOW : BINARY_STATE_HIGH;
+    return true;
   }
 
  private:
