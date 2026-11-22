@@ -7,6 +7,11 @@ implementations.
 
 * [Programming guide](doc/programming_guide.md)
 
+## Arduino and PlatformIO
+
+The bound adapters use `roo_transceivers` 1.3.0 or newer. To use an adapter,
+install `roo_transceivers` separately in Arduino Library Manager, or add
+`dejwk/roo_transceivers @ >=1.3.0` to the PlatformIO environment's `lib_deps`.
 
 ## Bazel targets
 

@@ -1,0 +1,3 @@
+{
+    "hardware_dependency_exclusions": ["roo_transceivers"]
+}
