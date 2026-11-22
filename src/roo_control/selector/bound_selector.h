@@ -1,6 +1,7 @@
 #pragma once
 
 #include "roo_control/selector/selector.h"
+#include "roo_transceivers.h"
 #include "roo_transceivers/binding/binding.h"
 
 namespace roo_control {
