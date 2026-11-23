@@ -1,10 +1,10 @@
 # roo_control 1.3.0
 
 - Fix `BoundSelector` compatibility with `roo_transceivers` 1.3.0 and add regression tests for valid, missing, and invalid binary and integer readings.
-- Move `BoundSelector`, `BoundSwitch`, and `BoundThermometer` to the `@roo_control//:bound_transceivers` Bazel target, making `roo_transceivers` optional for core builds. Install `roo_transceivers` 1.3.0 or newer separately when using these adapters with Arduino or PlatformIO.
+- Make `roo_transceivers` optional for core builds. Bazel users of `BoundSelector`, `BoundSwitch`, or `BoundThermometer` should depend on `@roo_control//:bound_transceivers`, which now uses `roo_transceivers` 1.4.0. Arduino and PlatformIO users should install `roo_transceivers` 1.3.0 or newer separately when using these adapters.
 - Update `InertSwitch` to accept `roo_scheduler::Scheduler&`. Upgrade Bazel dependencies and PlatformIO minimums to `roo_scheduler` 2.4.0, `roo_logging` 1.6.1, and `roo_quantity` 1.1.12.
-- Upgrade `roo_testing` to 2.7.0 in Bazel and CI, and enable tests in CI for Arduino ESP32.
-- Add ESP32-S3, ESP32-C3, and RP2040 host-emulation configs and expand `test_all_profiles` to cover nine profiles. Running the full matrix requires additional `.bazelrc` imports.
+- Upgrade `roo_testing` to 2.7.0 in Bazel and CI, and enable Arduino ESP32 tests in CI.
+- Add ESP32-S3, ESP32-C3, and RP2040 host-emulation configurations. Running all nine profiles with `test_all_profiles` requires additional `.bazelrc` imports.
 
 ---
 
